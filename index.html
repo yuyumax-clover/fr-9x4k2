@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>FlashRecall — スマホ対応Anki風間隔反復学習アプリ</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans JP', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card-flip-container {
+      perspective: 1000px;
+    }
+    .tap-scale:active {
+      transform: scale(0.97);
+    }
+    /* Custom scrollbar for clean mobile/desktop look */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- Passcode Lock Overlay -->
+  <div id="lock-screen" class="hidden fixed inset-0 z-50 bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-xl text-center">
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 flex items-center justify-center">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold">FlashRecall ロック中</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">パスコードを入力して学習を再開してください</p>
+      </div>
+      <form id="unlock-form" class="space-y-3">
+        <input id="unlock-passcode-input" type="password" inputmode="numeric" placeholder="パスコードを入力" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center text-base tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <p id="unlock-error-msg" class="hidden text-xs text-rose-600 dark:text-rose-400 font-medium">パスコードが違います</p>
+        <button type="submit" class="tap-scale w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm">
+          ロック解除
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Top App Bar -->
+  <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold shadow-sm shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        </div>
+        <div class="truncate">
+          <h1 class="text-base font-bold tracking-tight truncate">FlashRecall</h1>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="sync-header-btn" type="button" title="クラウド同期" class="hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors">
+          <svg id="sync-header-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span id="sync-header-label">同期</span>
+        </button>
+        <span id="streak-badge" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+          <span>🔥</span>
+          <span id="streak-count">0</span>日
+        </span>
+        <button id="theme-toggle-btn" type="button" aria-label="テーマ切り替え" class="p-2 rounded-xl text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
+          <svg id="theme-icon-sun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <svg id="theme-icon-moon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-3xl w-full mx-auto px-4 pt-4 pb-24">
+
+    <!-- VIEW 1: DECKS -->
+    <section id="view-decks" class="space-y-4">
+      <!-- Daily Summary Card -->
+      <div class="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-4 sm:p-5 text-white shadow-md">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-medium text-indigo-100 uppercase tracking-wider">今日の学習状況</p>
+            <h2 class="text-xl sm:text-2xl font-bold mt-0.5"><span id="today-reviewed-count">0</span> 枚 復習済み</h2>
+          </div>
+          <button id="quick-study-btn" type="button" class="tap-scale px-4 py-2.5 bg-white text-indigo-700 font-semibold text-sm rounded-xl shadow-sm hover:bg-indigo-50 transition-colors shrink-0">
+            まとめて学習
+          </button>
+        </div>
+        <div class="mt-3">
+          <div class="flex justify-between text-xs text-indigo-100 mb-1">
+            <span>本日の目標進捗</span>
+            <span id="today-due-summary">残り 0 枚</span>
+          </div>
+          <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+            <div id="today-progress-bar" class="h-full bg-emerald-300 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deck List Header -->
+      <div class="flex items-center justify-between pt-1">
+        <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-400">デッキ一覧</h3>
+        <button id="open-new-deck-btn" type="button" class="tap-scale inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          新規デッキ
+        </button>
+      </div>
+
+      <!-- Deck Cards Container -->
+      <div id="deck-list-container" class="space-y-3"></div>
+    </section>
+
+    <!-- VIEW 2: STUDY -->
+    <section id="view-study" class="hidden space-y-4">
+      <div class="flex items-center justify-between gap-2">
+        <button id="study-back-btn" type="button" class="tap-scale inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          デッキに戻る
+        </button>
+        <div class="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 truncate" id="study-deck-title">学習中</div>
+        <div class="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0" id="study-remaining-badge">残り 0</div>
+      </div>
+
+      <!-- Study Active Card -->
+      <div id="study-card-area" class="space-y-4">
+        <div id="flashcard-box" class="card-flip-container bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm min-h-[280px] sm:min-h-[340px] p-6 sm:p-8 flex flex-col justify-between cursor-pointer select-none transition-all">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span id="card-status-pill" class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-medium">新規</span>
+            <span id="card-deck-label" class="truncate max-w-[180px]"></span>
+          </div>
+
+          <div class="my-auto py-6 text-center space-y-4">
+            <div id="card-front-text" class="text-2xl sm:text-3xl font-bold leading-snug break-words"></div>
+            <div id="card-front-hint" class="text-xs text-slate-400 dark:text-slate-500"></div>
+
+            <div id="card-answer-divider" class="hidden border-t border-slate-200 dark:border-slate-800 my-4 pt-4">
+              <div id="card-back-text" class="text-lg sm:text-xl font-medium text-indigo-700 dark:text-indigo-300 leading-relaxed break-words"></div>
+              <div id="card-note-text" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 break-words"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span id="card-interval-info"></span>
+            <span class="hidden sm:inline">Space: 答えを表示 / 1-4: 評価</span>
+          </div>
+        </div>
+
+        <!-- Show Answer Button -->
+        <div id="show-answer-wrap">
+          <button id="show-answer-btn" type="button" class="tap-scale w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-base shadow-md transition-colors">
+            答えを表示する
+          </button>
+        </div>
+
+        <!-- 4-Grade Rating Buttons (SM-2) -->
+        <div id="rating-buttons-wrap" class="hidden grid grid-cols-4 gap-2">
+          <button type="button" data-grade="1" class="rating-btn tap-scale flex flex-col items-center justify-center py-3 px-1 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:hover:bg-rose-900/50 dark:text-rose-300 dark:border-rose-800 transition-colors">
+            <span class="text-xs sm:text-sm font-bold">もう一度</span>
+            <span id="next-int-1" class="text-[11px] opacity-80 mt-0.5">1分</span>
+          </button>
+          <button type="button" data-grade="2" class="rating-btn tap-scale flex flex-col items-center justify-center py-3 px-1 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:hover:bg-amber-900/50 dark:text-amber-300 dark:border-amber-800 transition-colors">
+            <span class="text-xs sm:text-sm font-bold">難しい</span>
+            <span id="next-int-2" class="text-[11px] opacity-80 mt-0.5">10分</span>
+          </button>
+          <button type="button" data-grade="3" class="rating-btn tap-scale flex flex-col items-center justify-center py-3 px-1 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-800 transition-colors">
+            <span class="text-xs sm:text-sm font-bold">良い</span>
+            <span id="next-int-3" class="text-[11px] opacity-80 mt-0.5">1日</span>
+          </button>
+          <button type="button" data-grade="4" class="rating-btn tap-scale flex flex-col items-center justify-center py-3 px-1 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 dark:bg-sky-950/50 dark:hover:bg-sky-900/50 dark:text-sky-300 dark:border-sky-800 transition-colors">
+            <span class="text-xs sm:text-sm font-bold">簡単</span>
+            <span id="next-int-4" class="text-[11px] opacity-80 mt-0.5">4日</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Study Complete State -->
+      <div id="study-complete-area" class="hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 text-center space-y-4">
+        <div class="w-16 h-16 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300 flex items-center justify-center text-3xl">
+          🎉
+        </div>
+        <h3 class="text-xl font-bold">今日の学習が完了しました！</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400">このデッキで今すぐ復習が必要なカードはありません。</p>
+        <div class="flex flex-col sm:flex-row gap-2 justify-center pt-2">
+          <button id="study-done-home-btn" type="button" class="tap-scale px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm">
+            デッキ一覧へ
+          </button>
+          <button id="study-practice-all-btn" type="button" class="tap-scale px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm">
+            全カードを自由練習
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: BROWSE / MANAGE CARDS -->
+    <section id="view-browse" class="hidden space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <h2 class="text-lg font-bold">カード管理</h2>
+        <button id="open-add-card-btn" type="button" class="tap-scale inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          カードを追加
+        </button>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <input id="browse-search-input" type="text" placeholder="表面・裏面・メモを検索..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <select id="browse-deck-filter" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="all">すべてのデッキ</option>
+        </select>
+      </div>
+
+      <div class="text-xs text-slate-500 dark:text-slate-400" id="browse-count-label">0 枚のカード</div>
+      <div id="browse-cards-list" class="space-y-2.5"></div>
+    </section>
+
+    <!-- VIEW 4: STATS & DATA -->
+    <section id="view-stats" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">学習統計・データ管理</h2>
+
+      <!-- KPI Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5">
+          <p class="text-xs text-slate-500 dark:text-slate-400">総カード数</p>
+          <p id="stat-total-cards" class="text-2xl font-bold mt-1">0</p>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5">
+          <p class="text-xs text-slate-500 dark:text-slate-400">習得済み (7日以上)</p>
+          <p id="stat-mature-cards" class="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">0</p>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5">
+          <p class="text-xs text-slate-500 dark:text-slate-400">累計復習回数</p>
+          <p id="stat-total-reviews" class="text-2xl font-bold mt-1 text-indigo-600 dark:text-indigo-400">0</p>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5">
+          <p class="text-xs text-slate-500 dark:text-slate-400">正答率</p>
+          <p id="stat-accuracy" class="text-2xl font-bold mt-1 text-sky-600 dark:text-sky-400">0%</p>
+        </div>
+      </div>
+
+      <!-- Forecast Chart -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+        <h3 class="text-sm font-semibold mb-3">今後7日間の復習予定</h3>
+        <div class="relative h-56">
+          <canvas id="forecast-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Cloud Auto Sync (Google Sheets / GAS) -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="text-sm font-semibold">クラウド自動同期（Googleスプレッドシート連携）</h3>
+          <span id="sync-status-badge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">未設定</span>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          Google Apps Script（GAS）のウェブアプリURLをPCとスマホの両方に設定すると、学習のたびに自動でクラウド保存・同期されます。
+        </p>
+        <div class="space-y-2">
+          <input id="sync-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input id="sync-secret-input" type="password" placeholder="同期の合言葉（GAS側と合わせる・任意）" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <div class="flex flex-wrap gap-2">
+            <button id="save-sync-url-btn" type="button" class="tap-scale px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold">
+              URLを保存して同期
+            </button>
+            <button id="sync-pull-btn" type="button" class="tap-scale px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold">
+              クラウドから受信
+            </button>
+            <button id="sync-push-btn" type="button" class="tap-scale px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold">
+              クラウドへ送信
+            </button>
+            <button id="clear-sync-url-btn" type="button" class="tap-scale px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/50 text-xs sm:text-sm font-semibold">
+              解除
+            </button>
+          </div>
+        </div>
+        <details class="pt-1">
+          <summary class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 cursor-pointer select-none">GAS設定用コードをコピー（初回のみ）</summary>
+          <div class="mt-2 space-y-2">
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              1. Googleスプレッドシートを新規作成 →「拡張機能」→「Apps Script」を開く<br/>
+              2. 下のコードを貼り付けて保存 →「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」、アクセスできるユーザー「全員」でデプロイし、発行されたURLを上に貼り付けます。
+            </p>
+            <pre id="gas-code-block" class="p-3 rounded-xl bg-slate-900 text-slate-100 text-[11px] overflow-x-auto leading-relaxed">var SECRET_KEY = ""; // 任意の合言葉を設定すると他人のアクセスを遮断できます
+
+function checkKey(e) {
+  if (!SECRET_KEY) return true;
+  return e &amp;&amp; e.parameter &amp;&amp; e.parameter.key === SECRET_KEY;
+}
+function doGet(e) {
+  if (!checkKey(e)) return ContentService.createTextOutput(JSON.stringify({error: "unauthorized"})).setMimeType(ContentService.MimeType.JSON);
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  var vals = sheet.getRange("A1:A20").getValues().flat().filter(Boolean);
+  var json = vals.join("") || "{}";
+  return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+function doPost(e) {
+  if (!checkKey(e)) return ContentService.createTextOutput(JSON.stringify({error: "unauthorized"})).setMimeType(ContentService.MimeType.JSON);
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+  var data = e.postData.contents || "{}";
+  sheet.getRange("A1:A20").clearContent();
+  var chunkSize = 40000;
+  for (var i = 0; i * chunkSize &lt; data.length &amp;&amp; i &lt; 20; i++) {
+    sheet.getRange(i + 1, 1).setValue(data.slice(i * chunkSize, (i + 1) * chunkSize));
+  }
+  return ContentService.createTextOutput(JSON.stringify({status: "ok"})).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+            <button id="copy-gas-code-btn" type="button" class="tap-scale px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold">
+              GASコードをコピー
+            </button>
+          </div>
+        </details>
+      </div>
+
+      <!-- App Passcode Lock -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="text-sm font-semibold">アプリのパスコードロック</h3>
+          <span id="passcode-status-badge" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">未設定</span>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          設定すると、アプリを開いたときにパスコード入力を求めるようになります（この端末のみに保存されます）。
+        </p>
+        <div class="flex flex-wrap gap-2 items-center">
+          <input id="passcode-set-input" type="password" inputmode="numeric" placeholder="新しいパスコード" class="flex-1 min-w-[160px] px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <button id="save-passcode-btn" type="button" class="tap-scale px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold">
+            設定
+          </button>
+          <button id="clear-passcode-btn" type="button" class="tap-scale px-3 py-2 rounded-xl text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/50 text-xs sm:text-sm font-semibold">
+            解除
+          </button>
+        </div>
+      </div>
+
+      <!-- Import / Export -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+        <h3 class="text-sm font-semibold">バックアップ・Ankiデータ移行</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          学習データは端末のブラウザに自動保存されます。JSONで全データを書き出したり、CSV/TSVテキストから一括でカードを取り込めます。
+        </p>
+        <div class="flex flex-wrap gap-2">
+          <button id="export-json-btn" type="button" class="tap-scale px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold">
+            JSON書き出し
+          </button>
+          <label class="tap-scale px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold cursor-pointer">
+            JSON読み込み
+            <input id="import-json-input" type="file" accept=".json" class="hidden" />
+          </label>
+          <button id="open-csv-import-btn" type="button" class="tap-scale px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 dark:text-indigo-300 text-xs sm:text-sm font-semibold">
+            CSV/テキスト一括登録
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation Bar (Mobile-first) -->
+  <nav class="fixed bottom-0 inset-x-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-t border-slate-200 dark:border-slate-800">
+    <div class="max-w-3xl mx-auto grid grid-cols-3 h-16">
+      <button type="button" data-nav="decks" class="nav-btn flex flex-col items-center justify-center gap-0.5 text-indigo-600 dark:text-indigo-400 font-semibold text-xs">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <span>デッキ</span>
+      </button>
+      <button type="button" data-nav="browse" class="nav-btn flex flex-col items-center justify-center gap-0.5 text-slate-500 dark:text-slate-400 font-medium text-xs">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <span>カード管理</span>
+      </button>
+      <button type="button" data-nav="stats" class="nav-btn flex flex-col items-center justify-center gap-0.5 text-slate-500 dark:text-slate-400 font-medium text-xs">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+        <span>統計・設定</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MODAL: New/Edit Deck -->
+  <div id="deck-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between">
+        <h3 id="deck-modal-title" class="text-base font-bold">新規デッキ作成</h3>
+        <button type="button" class="close-modal-btn text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">✕</button>
+      </div>
+      <form id="deck-form" class="space-y-3">
+        <input type="hidden" id="deck-form-id" />
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">デッキ名</label>
+          <input id="deck-form-name" type="text" required placeholder="例: TOEIC 重要単語" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">説明（任意）</label>
+          <input id="deck-form-desc" type="text" placeholder="例: 通勤中に覚えるフレーズ集" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">キャンセル</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add/Edit Card -->
+  <div id="card-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between">
+        <h3 id="card-modal-title" class="text-base font-bold">カードを追加</h3>
+        <button type="button" class="close-modal-btn text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">✕</button>
+      </div>
+      <form id="card-form" class="space-y-3">
+        <input type="hidden" id="card-form-id" />
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">デッキ</label>
+          <select id="card-form-deck" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">表面（問題）</label>
+          <textarea id="card-form-front" rows="2" required placeholder="問題や単語を入力..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">裏面（答え）</label>
+          <textarea id="card-form-back" rows="2" required placeholder="意味や解答を入力..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">メモ・例文（任意）</label>
+          <input id="card-form-note" type="text" placeholder="補足や例文を入力..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">キャンセル</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CSV/TSV Bulk Import -->
+  <div id="csv-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold">CSV / タブ区切り 一括登録</h3>
+        <button type="button" class="close-modal-btn text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">✕</button>
+      </div>
+      <form id="csv-form" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">追加先デッキ</label>
+          <select id="csv-form-deck" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">1行1カード（「表面,裏面」またはタブ区切り）</label>
+          <textarea id="csv-form-text" rows="5" required placeholder="ubiquitous,至る所にある&#10;resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">キャンセル</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white">取り込む</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Confirm Delete -->
+  <div id="confirm-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-xl">
+      <h3 class="text-base font-bold">削除の確認</h3>
+      <p id="confirm-modal-message" class="text-sm text-slate-600 dark:text-slate-300"></p>
+      <div class="flex justify-end gap-2">
+        <button type="button" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">キャンセル</button>
+        <button id="confirm-modal-ok-btn" type="button" class="px-4 py-2 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white">削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs sm:text-sm font-medium shadow-lg transition-opacity"></div>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'flashrecall_anki_v1';
+      const DAILY_GOAL = 20;
+      const MIN_MS = 60 * 1000;
+      const DAY_MS = 24 * 60 * 60 * 1000;
+
+      let forecastChart = null;
+      let pendingConfirmAction = null;
+
+      // Default starter state
+      function createDefaultState() {
+        const now = Date.now();
+        return {
+          theme: 'light',
+          decks: [
+            { id: 'deck_en', name: 'ビジネス・日常英単語', desc: 'スキマ時間で覚える重要語彙' },
+            { id: 'deck_cs', name: 'IT・プログラミング基礎', desc: '開発でよく使う用語と概念' }
+          ],
+          cards: [
+            { id: 'c1', deckId: 'deck_en', front: 'ubiquitous', back: '至る所にある、遍在する', note: 'Smartphones have become ubiquitous.', reps: 0, interval: 0, ease: 2.5, due: now, state: 'new' },
+            { id: 'c2', deckId: 'deck_en', front: 'mitigate', back: '緩和する、軽減する', note: 'Steps were taken to mitigate the risk.', reps: 0, interval: 0, ease: 2.5, due: now, state: 'new' },
+            { id: 'c3', deckId: 'deck_en', front: 'feasible', back: '実行可能な、実現できる', note: 'Is this plan economically feasible?', reps: 0, interval: 0, ease: 2.5, due: now, state: 'new' },
+            { id: 'c4', deckId: 'deck_en', front: 'streamline', back: '効率化する、合理化する', note: 'We need to streamline the workflow.', reps: 0, interval: 0, ease: 2.5, due: now, state: 'new' },
+            { id: 'c5', deckId: 'deck_cs', front: 'Idempotency（べき等性）', back: '同じ操作を何度実行しても結果が同じになる性質', note: 'HTTPのGET, PUT, DELETEなどで重要', reps: 0, interval: 0, ease: 2.5, due: now, state: 'new' },
+            { id: 'c6', deckId: 'deck_cs', front: 'Spaced Repetition（間隔反復）', back: '忘却曲線に基づき復習間隔を徐々に延ばす学習法', note: 'Ankiの中核アルゴリズム（SM-2など）', reps: 0, interval: 0, ease: 2.5, due: now, state: 'new' },
+            { id: 'c7', deckId: 'deck_cs', front: 'PWA (Progressive Web App)', back: 'Webサイトをスマホアプリのようにホーム画面へ追加・オフライン動作させる技術', note: 'スマホでのブラウザ学習に最適', reps: 0, interval: 0, ease: 2.5, due: now, state: 'new' }
+          ],
+          stats: {
+            totalReviews: 0,
+            correctReviews: 0,
+            todayDate: getTodayKey(),
+            todayReviewed: 0,
+            streak: 0,
+            lastStudyDate: null
+          }
+        };
+      }
+
+      function getTodayKey() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return createDefaultState();
+          const parsed = JSON.parse(raw);
+          if (!parsed || !Array.isArray(parsed.decks) || !Array.isArray(parsed.cards)) {
+            return createDefaultState();
+          }
+          // Roll over daily count if date changed
+          const today = getTodayKey();
+          if (!parsed.stats) parsed.stats = createDefaultState().stats;
+          if (parsed.stats.todayDate !== today) {
+            parsed.stats.todayDate = today;
+            parsed.stats.todayReviewed = 0;
+          }
+          return parsed;
+        } catch (e) {
+          return createDefaultState();
+        }
+      }
+
+      const SYNC_URL_KEY = 'flashrecall_sync_url_v1';
+      const SYNC_SECRET_KEY = 'flashrecall_sync_secret_v1';
+      const PASSCODE_KEY = 'flashrecall_passcode_v1';
+      let syncDebounceTimer = null;
+      let isSyncing = false;
+
+      function getSyncUrl() {
+        try {
+          return (localStorage.getItem(SYNC_URL_KEY) || '').trim();
+        } catch (e) {
+          return '';
+        }
+      }
+
+      function setSyncUrl(url) {
+        try {
+          if (url) localStorage.setItem(SYNC_URL_KEY, url.trim());
+          else localStorage.removeItem(SYNC_URL_KEY);
+        } catch (e) {}
+      }
+
+      function getSyncSecret() {
+        try { return (localStorage.getItem(SYNC_SECRET_KEY) || '').trim(); } catch (e) { return ''; }
+      }
+
+      function setSyncSecret(secret) {
+        try {
+          if (secret) localStorage.setItem(SYNC_SECRET_KEY, secret.trim());
+          else localStorage.removeItem(SYNC_SECRET_KEY);
+        } catch (e) {}
+      }
+
+      function buildSyncEndpoint(baseUrl) {
+        const secret = getSyncSecret();
+        if (!secret) return baseUrl;
+        const sep = baseUrl.includes('?') ? '&' : '?';
+        return baseUrl + sep + 'key=' + encodeURIComponent(secret);
+      }
+
+      function getPasscode() {
+        try { return localStorage.getItem(PASSCODE_KEY) || ''; } catch (e) { return ''; }
+      }
+
+      function updatePasscodeUi() {
+        const badge = document.getElementById('passcode-status-badge');
+        if (!badge) return;
+        const has = Boolean(getPasscode());
+        badge.textContent = has ? '有効' : '未設定';
+        badge.className = 'text-[11px] font-semibold px-2 py-0.5 rounded-full ' + (
+          has ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+              : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+        );
+      }
+
+      function updateSyncUi(statusText, statusType = 'idle') {
+        const headerBtn = document.getElementById('sync-header-btn');
+        const headerIcon = document.getElementById('sync-header-icon');
+        const headerLabel = document.getElementById('sync-header-label');
+        const badge = document.getElementById('sync-status-badge');
+        const hasUrl = Boolean(getSyncUrl());
+
+        if (headerBtn) {
+          headerBtn.classList.toggle('hidden', !hasUrl);
+          headerLabel.textContent = statusType === 'syncing' ? '同期中...' : (statusType === 'error' ? '同期エラー' : '同期済み');
+          headerIcon.classList.toggle('animate-spin', statusType === 'syncing');
+        }
+        if (badge) {
+          badge.textContent = hasUrl ? statusText : '未設定';
+          badge.className = 'text-[11px] font-semibold px-2 py-0.5 rounded-full ' + (
+            !hasUrl ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300' :
+            statusType === 'error' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300' :
+            statusType === 'syncing' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' :
+            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+          );
+        }
+      }
+
+      async function pushToCloud(silent = true) {
+        const url = getSyncUrl();
+        if (!url || isSyncing) return false;
+        isSyncing = true;
+        updateSyncUi('送信中...', 'syncing');
+        try {
+          const res = await fetch(buildSyncEndpoint(url), {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(state)
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const result = await res.json().catch(() => ({}));
+          if (result && result.error === 'unauthorized') {
+            updateSyncUi('合言葉エラー', 'error');
+            if (!silent) showToast('同期の合言葉が一致しません');
+            return false;
+          }
+          updateSyncUi('同期済み', 'ok');
+          if (!silent) showToast('クラウドへ保存しました');
+          return true;
+        } catch (e) {
+          updateSyncUi('同期エラー（ローカル保存済み）', 'error');
+          if (!silent) showToast('クラウド送信に失敗しました');
+          return false;
+        } finally {
+          isSyncing = false;
+        }
+      }
+
+      async function pullFromCloud(silent = true, forceOverwrite = false) {
+        const url = getSyncUrl();
+        if (!url || isSyncing) return false;
+        isSyncing = true;
+        updateSyncUi('受信中...', 'syncing');
+        try {
+          const res = await fetch(buildSyncEndpoint(url), { method: 'GET' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const remote = await res.json();
+          if (remote && remote.error === 'unauthorized') {
+            updateSyncUi('合言葉エラー', 'error');
+            if (!silent) showToast('同期の合言葉が一致しません');
+            return false;
+          }
+          if (remote && Array.isArray(remote.decks) && Array.isArray(remote.cards)) {
+            const remoteTime = Number(remote.updatedAt || 0);
+            const localTime = Number(state.updatedAt || 0);
+            if (forceOverwrite || remoteTime > localTime) {
+              state = remote;
+              saveState(true);
+              applyTheme();
+              if (currentView === 'decks') renderDecksView();
+              if (currentView === 'browse') renderBrowseView();
+              if (currentView === 'stats') renderStatsView();
+              if (!silent) showToast('クラウドの最新データを反映しました');
+            } else if (!silent) {
+              showToast('この端末のデータが最新です');
+            }
+          } else if (forceOverwrite) {
+            if (!silent) showToast('クラウドにまだデータがありません');
+          }
+          updateSyncUi('同期済み', 'ok');
+          return true;
+        } catch (e) {
+          updateSyncUi('同期エラー', 'error');
+          if (!silent) showToast('クラウド受信に失敗しました');
+          return false;
+        } finally {
+          isSyncing = false;
+        }
+      }
+
+      function saveState(skipCloudSync = false) {
+        if (!skipCloudSync) {
+          state.updatedAt = Date.now();
+        }
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          // Ignore storage quota errors in restricted environments
+        }
+        if (!skipCloudSync && getSyncUrl()) {
+          clearTimeout(syncDebounceTimer);
+          syncDebounceTimer = setTimeout(() => {
+            pushToCloud(true);
+          }, 1200);
+        }
+      }
+
+      let state = loadState();
+      let currentView = 'decks';
+      let studySession = {
+        deckId: 'all',
+        practiceAll: false,
+        queue: [],
+        currentCard: null,
+        showingAnswer: false
+      };
+
+      // Toast helper
+      let toastTimer = null;
+      function showToast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.classList.remove('hidden');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.add('hidden'), 2400);
+      }
+
+      // Theme management
+      function applyTheme() {
+        const root = document.documentElement;
+        const sun = document.getElementById('theme-icon-sun');
+        const moon = document.getElementById('theme-icon-moon');
+        if (state.theme === 'dark') {
+          root.classList.add('dark');
+          sun.classList.remove('hidden');
+          moon.classList.add('hidden');
+        } else {
+          root.classList.remove('dark');
+          sun.classList.add('hidden');
+          moon.classList.remove('hidden');
+        }
+      }
+
+      // SM-2 Algorithm calculation
+      function computeNextSchedule(card, grade) {
+        // grade: 1=Again, 2=Hard, 3=Good, 4=Easy
+        let ease = card.ease || 2.5;
+        let reps = card.reps || 0;
+        let intervalDays = card.interval || 0;
+        let nextDueOffsetMs = 0;
+        let label = '';
+
+        if (grade === 1) {
+          reps = 0;
+          intervalDays = 0;
+          ease = Math.max(1.3, ease - 0.2);
+          nextDueOffsetMs = 1 * MIN_MS;
+          label = '1分';
+        } else if (grade === 2) {
+          if (reps === 0) {
+            intervalDays = 0;
+            nextDueOffsetMs = 10 * MIN_MS;
+            label = '10分';
+          } else {
+            intervalDays = Math.max(1, Math.round(intervalDays * 1.2));
+            nextDueOffsetMs = intervalDays * DAY_MS;
+            label = `${intervalDays}日`;
+          }
+          ease = Math.max(1.3, ease - 0.15);
+        } else if (grade === 3) {
+          if (reps === 0) {
+            intervalDays = 1;
+          } else if (reps === 1) {
+            intervalDays = 6;
+          } else {
+            intervalDays = Math.round(intervalDays * ease);
+          }
+          reps += 1;
+          nextDueOffsetMs = intervalDays * DAY_MS;
+          label = `${intervalDays}日`;
+        } else if (grade === 4) {
+          if (reps === 0) {
+            intervalDays = 4;
+          } else if (reps === 1) {
+            intervalDays = 10;
+          } else {
+            intervalDays = Math.round(intervalDays * ease * 1.3);
+          }
+          reps += 1;
+          ease = Math.min(3.0, ease + 0.15);
+          nextDueOffsetMs = intervalDays * DAY_MS;
+          label = `${intervalDays}日`;
+        }
+
+        return {
+          reps,
+          interval: intervalDays,
+          ease,
+          due: Date.now() + nextDueOffsetMs,
+          state: intervalDays >= 7 ? 'mature' : (reps > 0 ? 'learning' : 'new'),
+          label
+        };
+      }
+
+      // Navigation
+      function switchView(viewName) {
+        currentView = viewName;
+        ['decks', 'study', 'browse', 'stats'].forEach(v => {
+          document.getElementById(`view-${v}`).classList.toggle('hidden', v !== viewName);
+        });
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          const active = btn.dataset.nav === viewName || (viewName === 'study' && btn.dataset.nav === 'decks');
+          btn.classList.toggle('text-indigo-600', active);
+          btn.classList.toggle('dark:text-indigo-400', active);
+          btn.classList.toggle('font-semibold', active);
+          btn.classList.toggle('text-slate-500', !active);
+          btn.classList.toggle('dark:text-slate-400', !active);
+        });
+
+        if (viewName === 'decks') renderDecksView();
+        if (viewName === 'browse') renderBrowseView();
+        if (viewName === 'stats') renderStatsView();
+      }
+
+      // Render Decks View
+      function renderDecksView() {
+        const now = Date.now();
+        document.getElementById('streak-count').textContent = state.stats.streak || 0;
+        document.getElementById('today-reviewed-count').textContent = state.stats.todayReviewed || 0;
+
+        const totalDue = state.cards.filter(c => c.due <= now).length;
+        document.getElementById('today-due-summary').textContent = `復習待ち ${totalDue} 枚`;
+        const pct = Math.min(100, Math.round(((state.stats.todayReviewed || 0) / DAILY_GOAL) * 100));
+        document.getElementById('today-progress-bar').style.width = `${pct}%`;
+
+        const container = document.getElementById('deck-list-container');
+        if (state.decks.length === 0) {
+          container.innerHTML = `
+            <div class="bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-8 text-center text-sm text-slate-500">
+              デッキがまだありません。「新規デッキ」から作成してください。
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = state.decks.map(deck => {
+          const deckCards = state.cards.filter(c => c.deckId === deck.id);
+          const newCount = deckCards.filter(c => c.state === 'new' && c.due <= now).length;
+          const dueCount = deckCards.filter(c => c.state !== 'new' && c.due <= now).length;
+          const totalCount = deckCards.length;
+
+          return `
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  <h4 class="font-bold text-base truncate">${escapeHtml(deck.name)}</h4>
+                  ${deck.desc ? `<p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">${escapeHtml(deck.desc)}</p>` : ''}
+                  <div class="flex flex-wrap items-center gap-2 mt-2.5 text-xs">
+                    <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-semibold">新規 ${newCount}</span>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 font-semibold">復習 ${dueCount}</span>
+                    <span class="text-slate-400">全 ${totalCount} 枚</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button type="button" data-action="study-deck" data-id="${deck.id}" class="tap-scale px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm">
+                    学習
+                  </button>
+                  <button type="button" data-action="edit-deck" data-id="${deck.id}" aria-label="デッキ編集" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button type="button" data-action="delete-deck" data-id="${deck.id}" aria-label="デッキ削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Start Study Session
+      function startStudy(deckId, practiceAll = false) {
+        const now = Date.now();
+        let pool = deckId === 'all' ? [...state.cards] : state.cards.filter(c => c.deckId === deckId);
+        if (!practiceAll) {
+          pool = pool.filter(c => c.due <= now);
+        }
+        // Sort: due cards oldest first
+        pool.sort((a, b) => a.due - b.due);
+
+        studySession = {
+          deckId,
+          practiceAll,
+          queue: pool,
+          currentCard: pool[0] || null,
+          showingAnswer: false
+        };
+
+        const deckObj = state.decks.find(d => d.id === deckId);
+        document.getElementById('study-deck-title').textContent = deckId === 'all' ? '全デッキまとめ学習' : (deckObj ? deckObj.name : '学習中');
+        switchView('study');
+        renderStudyCard();
+      }
+
+      function renderStudyCard() {
+        const cardArea = document.getElementById('study-card-area');
+        const completeArea = document.getElementById('study-complete-area');
+        const remBadge = document.getElementById('study-remaining-badge');
+
+        remBadge.textContent = `残り ${studySession.queue.length}`;
+
+        if (!studySession.currentCard) {
+          cardArea.classList.add('hidden');
+          completeArea.classList.remove('hidden');
+          return;
+        }
+
+        cardArea.classList.remove('hidden');
+        completeArea.classList.add('hidden');
+
+        const card = studySession.currentCard;
+        const deck = state.decks.find(d => d.id === card.deckId);
+
+        const pill = document.getElementById('card-status-pill');
+        if (card.state === 'new') {
+          pill.textContent = '新規';
+          pill.className = 'px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-medium';
+        } else if (card.state === 'mature') {
+          pill.textContent = '定着';
+          pill.className = 'px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 font-medium';
+        } else {
+          pill.textContent = '復習中';
+          pill.className = 'px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 font-medium';
+        }
+
+        document.getElementById('card-deck-label').textContent = deck ? deck.name : '';
+        document.getElementById('card-front-text').textContent = card.front;
+        document.getElementById('card-front-hint').textContent = studySession.showingAnswer ? '' : 'カードをタップして答えを表示';
+        document.getElementById('card-back-text').textContent = card.back;
+        document.getElementById('card-note-text').textContent = card.note || '';
+        document.getElementById('card-interval-info').textContent = card.interval > 0 ? `前回間隔: ${card.interval}日` : '初回学習';
+
+        document.getElementById('card-answer-divider').classList.toggle('hidden', !studySession.showingAnswer);
+        document.getElementById('show-answer-wrap').classList.toggle('hidden', studySession.showingAnswer);
+        document.getElementById('rating-buttons-wrap').classList.toggle('hidden', !studySession.showingAnswer);
+
+        if (studySession.showingAnswer) {
+          [1, 2, 3, 4].forEach(g => {
+            const next = computeNextSchedule(card, g);
+            document.getElementById(`next-int-${g}`).textContent = next.label;
+          });
+        }
+      }
+
+      function revealAnswer() {
+        if (!studySession.currentCard || studySession.showingAnswer) return;
+        studySession.showingAnswer = true;
+        renderStudyCard();
+      }
+
+      function submitGrade(grade) {
+        const card = studySession.currentCard;
+        if (!card || !studySession.showingAnswer) return;
+
+        const next = computeNextSchedule(card, grade);
+        card.reps = next.reps;
+        card.interval = next.interval;
+        card.ease = next.ease;
+        card.due = next.due;
+        card.state = next.state;
+
+        // Update stats
+        const today = getTodayKey();
+        if (state.stats.todayDate !== today) {
+          state.stats.todayDate = today;
+          state.stats.todayReviewed = 0;
+        }
+        state.stats.totalReviews += 1;
+        state.stats.todayReviewed += 1;
+        if (grade >= 3) state.stats.correctReviews += 1;
+
+        if (state.stats.lastStudyDate !== today) {
+          const yesterday = new Date(Date.now() - DAY_MS);
+          const yKey = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+          if (state.stats.lastStudyDate === yKey) {
+            state.stats.streak += 1;
+          } else {
+            state.stats.streak = 1;
+          }
+          state.stats.lastStudyDate = today;
+        }
+
+        // Queue management: if Again (1) or Hard on new card, re-queue at end of current session
+        studySession.queue.shift();
+        if (grade === 1) {
+          studySession.queue.push(card);
+        }
+
+        studySession.currentCard = studySession.queue[0] || null;
+        studySession.showingAnswer = false;
+        saveState();
+        renderStudyCard();
+      }
+
+      // Render Browse View
+      function renderBrowseView() {
+        const filterSelect = document.getElementById('browse-deck-filter');
+        const currentFilter = filterSelect.value || 'all';
+        filterSelect.innerHTML = `<option value="all">すべてのデッキ</option>` +
+          state.decks.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('');
+        filterSelect.value = state.decks.some(d => d.id === currentFilter) ? currentFilter : 'all';
+
+        const query = (document.getElementById('browse-search-input').value || '').trim().toLowerCase();
+        const filtered = state.cards.filter(c => {
+          if (filterSelect.value !== 'all' && c.deckId !== filterSelect.value) return false;
+          if (!query) return true;
+          return (
+            c.front.toLowerCase().includes(query) ||
+            c.back.toLowerCase().includes(query) ||
+            (c.note && c.note.toLowerCase().includes(query))
+          );
+        });
+
+        document.getElementById('browse-count-label').textContent = `${filtered.length} 枚のカード`;
+        const listEl = document.getElementById('browse-cards-list');
+
+        if (filtered.length === 0) {
+          listEl.innerHTML = `<div class="bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-8 text-center text-sm text-slate-500">一致するカードがありません</div>`;
+          return;
+        }
+
+        listEl.innerHTML = filtered.map(card => {
+          const deck = state.decks.find(d => d.id === card.deckId);
+          return `
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-[140px]">${escapeHtml(deck ? deck.name : '不明')}</span>
+                  <span class="text-[11px] text-slate-400">${card.interval > 0 ? `間隔: ${card.interval}日` : '新規'}</span>
+                </div>
+                <p class="font-semibold text-sm break-words">${escapeHtml(card.front)}</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 break-words">${escapeHtml(card.back)}</p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-action="edit-card" data-id="${card.id}" aria-label="カード編集" class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button type="button" data-action="delete-card" data-id="${card.id}" aria-label="カード削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Stats View
+      function renderStatsView() {
+        const total = state.cards.length;
+        const mature = state.cards.filter(c => c.interval >= 7).length;
+        const totalRev = state.stats.totalReviews || 0;
+        const acc = totalRev > 0 ? Math.round(((state.stats.correctReviews || 0) / totalRev) * 100) : 0;
+
+        document.getElementById('stat-total-cards').textContent = total;
+        document.getElementById('stat-mature-cards').textContent = mature;
+        document.getElementById('stat-total-reviews').textContent = totalRev;
+        document.getElementById('stat-accuracy').textContent = `${acc}%`;
+
+        // 7-day forecast
+        const labels = [];
+        const counts = [];
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const todayStartMs = startOfToday.getTime();
+
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(todayStartMs + i * DAY_MS);
+          labels.push(i === 0 ? '今日' : `${d.getMonth() + 1}/${d.getDate()}`);
+          const dayEnd = todayStartMs + (i + 1) * DAY_MS;
+          const dayStart = i === 0 ? 0 : todayStartMs + i * DAY_MS;
+          counts.push(state.cards.filter(c => c.due >= dayStart && c.due < dayEnd).length);
+        }
+
+        const ctx = document.getElementById('forecast-chart').getContext('2d');
+        if (forecastChart) forecastChart.destroy();
+        if (typeof Chart !== 'undefined') {
+          forecastChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels,
+              datasets: [{
+                label: '予定枚数',
+                data: counts,
+                backgroundColor: '#6366f1',
+                borderRadius: 6
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+              }
+            }
+          });
+        }
+      }
+
+      // Modals helpers
+      function closeAllModals() {
+        ['deck-modal', 'card-modal', 'csv-modal', 'confirm-modal'].forEach(id => {
+          document.getElementById(id).classList.add('hidden');
+        });
+      }
+
+      function populateDeckSelect(selectId, selectedId) {
+        const sel = document.getElementById(selectId);
+        sel.innerHTML = state.decks.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('');
+        if (selectedId && state.decks.some(d => d.id === selectedId)) {
+          sel.value = selectedId;
+        }
+      }
+
+      function openConfirm(message, onConfirm) {
+        document.getElementById('confirm-modal-message').textContent = message;
+        pendingConfirmAction = onConfirm;
+        document.getElementById('confirm-modal').classList.remove('hidden');
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      // Event Listeners
+      document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+        state.theme = state.theme === 'dark' ? 'light' : 'dark';
+        applyTheme();
+        saveState();
+      });
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchView(btn.dataset.nav));
+      });
+
+      document.querySelectorAll('.close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', closeAllModals);
+      });
+
+      document.getElementById('confirm-modal-ok-btn').addEventListener('click', () => {
+        if (typeof pendingConfirmAction === 'function') pendingConfirmAction();
+        pendingConfirmAction = null;
+        closeAllModals();
+      });
+
+      // Quick study all
+      document.getElementById('quick-study-btn').addEventListener('click', () => startStudy('all', false));
+      document.getElementById('study-back-btn').addEventListener('click', () => switchView('decks'));
+      document.getElementById('study-done-home-btn').addEventListener('click', () => switchView('decks'));
+      document.getElementById('study-practice-all-btn').addEventListener('click', () => startStudy(studySession.deckId, true));
+
+      // Flashcard interactions
+      document.getElementById('flashcard-box').addEventListener('click', revealAnswer);
+      document.getElementById('show-answer-btn').addEventListener('click', revealAnswer);
+      document.querySelectorAll('.rating-btn').forEach(btn => {
+        btn.addEventListener('click', () => submitGrade(Number(btn.dataset.grade)));
+      });
+
+      // Keyboard shortcuts for desktop convenience
+      document.addEventListener('keydown', (e) => {
+        if (currentView !== 'study' || !studySession.currentCard) return;
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+        if (e.code === 'Space') {
+          e.preventDefault();
+          revealAnswer();
+        } else if (studySession.showingAnswer && ['1', '2', '3', '4'].includes(e.key)) {
+          submitGrade(Number(e.key));
+        }
+      });
+
+      // Deck modal actions
+      document.getElementById('open-new-deck-btn').addEventListener('click', () => {
+        document.getElementById('deck-modal-title').textContent = '新規デッキ作成';
+        document.getElementById('deck-form-id').value = '';
+        document.getElementById('deck-form-name').value = '';
+        document.getElementById('deck-form-desc').value = '';
+        document.getElementById('deck-modal').classList.remove('hidden');
+      });
+
+      document.getElementById('deck-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('deck-form-id').value;
+        const name = document.getElementById('deck-form-name').value.trim();
+        const desc = document.getElementById('deck-form-desc').value.trim();
+        if (!name) return;
+
+        if (id) {
+          const deck = state.decks.find(d => d.id === id);
+          if (deck) {
+            deck.name = name;
+            deck.desc = desc;
+          }
+          showToast('デッキを更新しました');
+        } else {
+          state.decks.push({ id: 'deck_' + Date.now(), name, desc });
+          showToast('新しいデッキを作成しました');
+        }
+        saveState();
+        closeAllModals();
+        renderDecksView();
+      });
+
+      // Deck list delegation
+      document.getElementById('deck-list-container').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        if (action === 'study-deck') {
+          startStudy(id, false);
+        } else if (action === 'edit-deck') {
+          const deck = state.decks.find(d => d.id === id);
+          if (!deck) return;
+          document.getElementById('deck-modal-title').textContent = 'デッキを編集';
+          document.getElementById('deck-form-id').value = deck.id;
+          document.getElementById('deck-form-name').value = deck.name;
+          document.getElementById('deck-form-desc').value = deck.desc || '';
+          document.getElementById('deck-modal').classList.remove('hidden');
+        } else if (action === 'delete-deck') {
+          const deck = state.decks.find(d => d.id === id);
+          if (!deck) return;
+          openConfirm(`「${deck.name}」と中のカードをすべて削除しますか？`, () => {
+            state.decks = state.decks.filter(d => d.id !== id);
+            state.cards = state.cards.filter(c => c.deckId !== id);
+            saveState();
+            renderDecksView();
+            showToast('デッキを削除しました');
+          });
+        }
+      });
+
+      // Card add/edit modal
+      document.getElementById('open-add-card-btn').addEventListener('click', () => {
+        if (state.decks.length === 0) {
+          showToast('先にデッキを作成してください');
+          return;
+        }
+        document.getElementById('card-modal-title').textContent = 'カードを追加';
+        document.getElementById('card-form-id').value = '';
+        populateDeckSelect('card-form-deck', document.getElementById('browse-deck-filter').value);
+        document.getElementById('card-form-front').value = '';
+        document.getElementById('card-form-back').value = '';
+        document.getElementById('card-form-note').value = '';
+        document.getElementById('card-modal').classList.remove('hidden');
+      });
+
+      document.getElementById('card-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = document.getElementById('card-form-id').value;
+        const deckId = document.getElementById('card-form-deck').value;
+        const front = document.getElementById('card-form-front').value.trim();
+        const back = document.getElementById('card-form-back').value.trim();
+        const note = document.getElementById('card-form-note').value.trim();
+        if (!deckId || !front || !back) return;
+
+        if (id) {
+          const card = state.cards.find(c => c.id === id);
+          if (card) {
+            card.deckId = deckId;
+            card.front = front;
+            card.back = back;
+            card.note = note;
+          }
+          showToast('カードを更新しました');
+        } else {
+          state.cards.push({
+            id: 'card_' + Date.now(),
+            deckId,
+            front,
+            back,
+            note,
+            reps: 0,
+            interval: 0,
+            ease: 2.5,
+            due: Date.now(),
+            state: 'new'
+          });
+          showToast('カードを追加しました');
+        }
+        saveState();
+        closeAllModals();
+        renderBrowseView();
+      });
+
+      // Browse filters & delegation
+      document.getElementById('browse-search-input').addEventListener('input', renderBrowseView);
+      document.getElementById('browse-deck-filter').addEventListener('change', renderBrowseView);
+
+      document.getElementById('browse-cards-list').addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+        if (action === 'edit-card') {
+          const card = state.cards.find(c => c.id === id);
+          if (!card) return;
+          document.getElementById('card-modal-title').textContent = 'カードを編集';
+          document.getElementById('card-form-id').value = card.id;
+          populateDeckSelect('card-form-deck', card.deckId);
+          document.getElementById('card-form-front').value = card.front;
+          document.getElementById('card-form-back').value = card.back;
+          document.getElementById('card-form-note').value = card.note || '';
+          document.getElementById('card-modal').classList.remove('hidden');
+        } else if (action === 'delete-card') {
+          openConfirm('このカードを削除しますか？', () => {
+            state.cards = state.cards.filter(c => c.id !== id);
+            saveState();
+            renderBrowseView();
+            showToast('カードを削除しました');
+          });
+        }
+      });
+
+      // CSV / TSV Import
+      document.getElementById('open-csv-import-btn').addEventListener('click', () => {
+        if (state.decks.length === 0) {
+          showToast('先にデッキを作成してください');
+          return;
+        }
+        populateDeckSelect('csv-form-deck');
+        document.getElementById('csv-form-text').value = '';
+        document.getElementById('csv-modal').classList.remove('hidden');
+      });
+
+      document.getElementById('csv-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const deckId = document.getElementById('csv-form-deck').value;
+        const text = document.getElementById('csv-form-text').value;
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        let added = 0;
+        const now = Date.now();
+        lines.forEach((line, idx) => {
+          const sep = line.includes('\t') ? '\t' : ',';
+          const parts = line.split(sep);
+          if (parts.length >= 2) {
+            const front = parts[0].trim();
+            const back = parts[1].trim();
+            const note = parts[2] ? parts[2].trim() : '';
+            if (front && back) {
+              state.cards.push({
+                id: `card_${now}_${idx}`,
+                deckId,
+                front,
+                back,
+                note,
+                reps: 0,
+                interval: 0,
+                ease: 2.5,
+                due: now,
+                state: 'new'
+              });
+              added += 1;
+            }
+          }
+        });
+        saveState();
+        closeAllModals();
+        showToast(`${added} 枚のカードを取り込みました`);
+        renderStatsView();
+      });
+
+      // JSON Export & Import
+      document.getElementById('export-json-btn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `flashrecall_backup_${getTodayKey()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('JSONを書き出しました');
+      });
+
+      document.getElementById('import-json-input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const data = JSON.parse(reader.result);
+            if (!Array.isArray(data.decks) || !Array.isArray(data.cards)) {
+              showToast('無効なバックアップファイルです');
+              return;
+            }
+            state = data;
+            saveState();
+            applyTheme();
+            renderStatsView();
+            showToast('データを復元しました');
+          } catch (err) {
+            showToast('JSONの読み込みに失敗しました');
+          }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+      });
+
+      // Cloud Sync Event Listeners
+      document.getElementById('sync-header-btn').addEventListener('click', () => pullFromCloud(false, false));
+
+      document.getElementById('save-sync-url-btn').addEventListener('click', async () => {
+        const val = document.getElementById('sync-url-input').value.trim();
+        const secret = document.getElementById('sync-secret-input').value.trim();
+        if (!val.startsWith('https://')) {
+          showToast('https:// で始まるGASのURLを入力してください');
+          return;
+        }
+        setSyncUrl(val);
+        setSyncSecret(secret);
+        updateSyncUi('接続確認中...', 'syncing');
+        const ok = await pullFromCloud(false, false);
+        if (ok && (!state.updatedAt || state.cards.length > 0)) {
+          await pushToCloud(true);
+        }
+      });
+
+      document.getElementById('sync-pull-btn').addEventListener('click', () => pullFromCloud(false, true));
+      document.getElementById('sync-push-btn').addEventListener('click', () => pushToCloud(false));
+
+      document.getElementById('clear-sync-url-btn').addEventListener('click', () => {
+        setSyncUrl('');
+        setSyncSecret('');
+        document.getElementById('sync-url-input').value = '';
+        document.getElementById('sync-secret-input').value = '';
+        updateSyncUi('未設定', 'idle');
+        showToast('クラウド同期を解除しました');
+      });
+
+      // Passcode Lock Listeners
+      document.getElementById('save-passcode-btn').addEventListener('click', () => {
+        const code = document.getElementById('passcode-set-input').value.trim();
+        if (!code) {
+          showToast('パスコードを入力してください');
+          return;
+        }
+        try { localStorage.setItem(PASSCODE_KEY, code); } catch (e) {}
+        document.getElementById('passcode-set-input').value = '';
+        updatePasscodeUi();
+        showToast('パスコードを設定しました');
+      });
+
+      document.getElementById('clear-passcode-btn').addEventListener('click', () => {
+        try { localStorage.removeItem(PASSCODE_KEY); } catch (e) {}
+        document.getElementById('passcode-set-input').value = '';
+        updatePasscodeUi();
+        showToast('パスコードを解除しました');
+      });
+
+      document.getElementById('unlock-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('unlock-passcode-input').value;
+        if (input === getPasscode()) {
+          document.getElementById('lock-screen').classList.add('hidden');
+          document.getElementById('unlock-error-msg').classList.add('hidden');
+          document.getElementById('unlock-passcode-input').value = '';
+        } else {
+          document.getElementById('unlock-error-msg').classList.remove('hidden');
+        }
+      });
+
+      document.getElementById('copy-gas-code-btn').addEventListener('click', async () => {
+        const code = document.getElementById('gas-code-block').textContent;
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(code);
+          } else {
+            throw new Error('fallback');
+          }
+          showToast('GASコードをコピーしました');
+        } catch (e) {
+          const ta = document.createElement('textarea');
+          ta.value = code;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast('GASコードをコピーしました');
+        }
+      });
+
+      // Initialize app
+      applyTheme();
+      document.getElementById('sync-url-input').value = getSyncUrl();
+      document.getElementById('sync-secret-input').value = getSyncSecret();
+      updateSyncUi(getSyncUrl() ? '同期待機' : '未設定', 'idle');
+      updatePasscodeUi();
+      if (getPasscode()) {
+        document.getElementById('lock-screen').classList.remove('hidden');
+      }
+      switchView('decks');
+      if (getSyncUrl()) {
+        pullFromCloud(true, false);
+      }
+    })();
+  </script>
+</body>
+</html>
