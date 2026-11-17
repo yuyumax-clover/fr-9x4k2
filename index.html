@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>FlashRecall — スマホ対応Anki風間隔反復学習アプリ</title>
+<html lang="ja"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="FlashRecall">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%234f46e5'/%3E%3Cpath d='M52 68h76a8 8 0 018 8v44a8 8 0 01-8 8H52a8 8 0 01-8-8V76a8 8 0 018-8zm12-18h52M74 36h32' stroke='%23ffffff' stroke-width='10' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+  <title>FlashRecall — iPhone・iPad・PC対応Anki風学習アプリ</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Noto+Sans+JP:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -41,8 +44,28 @@
       background: rgba(148, 163, 184, 0.4);
       border-radius: 9999px;
     }
+    /* iPhone / iPad Safari optimizations */
+    button, a, label, [role="button"] {
+      touch-action: manipulation;
+    }
+    @media (max-width: 767px) {
+      input, textarea, select, [contenteditable="true"] {
+        font-size: 16px !important;
+      }
+    }
+    [contenteditable="true"]:empty::before {
+      content: attr(data-placeholder);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+    .safe-top {
+      padding-top: env(safe-area-inset-top);
+    }
+    .safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   </style>
-</head>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:Inter, Noto Sans JP, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.fixed{position:fixed}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.inset-x-0{left:0px;right:0px}.bottom-0{bottom:0px}.bottom-20{bottom:5rem}.left-1\/2{left:50%}.top-0{top:0px}.z-30{z-index:30}.z-50{z-index:50}.mx-auto{margin-left:auto;margin-right:auto}.my-4{margin-top:1rem;margin-bottom:1rem}.my-auto{margin-top:auto;margin-bottom:auto}.mb-1{margin-bottom:0.25rem}.mb-3{margin-bottom:0.75rem}.mt-0\.5{margin-top:0.125rem}.mt-1{margin-top:0.25rem}.mt-1\.5{margin-top:0.375rem}.mt-2{margin-top:0.5rem}.mt-3{margin-top:0.75rem}.mt-2\.5{margin-top:0.625rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.hidden{display:none}.h-12{height:3rem}.h-14{height:3.5rem}.h-16{height:4rem}.h-2{height:0.5rem}.h-2\.5{height:0.625rem}.h-3{height:0.75rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-56{height:14rem}.h-6{height:1.5rem}.h-8{height:2rem}.h-auto{height:auto}.h-full{height:100%}.max-h-28{max-height:7rem}.max-h-40{max-height:10rem}.max-h-56{max-height:14rem}.max-h-\[90vh\]{max-height:90vh}.min-h-screen{min-height:100vh}.min-h-\[280px\]{min-height:280px}.min-h-\[68px\]{min-height:68px}.w-12{width:3rem}.w-16{width:4rem}.w-2\.5{width:0.625rem}.w-3\.5{width:0.875rem}.w-4{width:1rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-8{width:2rem}.w-full{width:100%}.min-w-0{min-width:0px}.min-w-\[160px\]{min-width:160px}.max-w-4xl{max-width:56rem}.max-w-\[180px\]{max-width:180px}.max-w-full{max-width:100%}.max-w-md{max-width:28rem}.max-w-sm{max-width:24rem}.max-w-xs{max-width:20rem}.max-w-\[140px\]{max-width:140px}.flex-1{flex:1 1 0%}.shrink-0{flex-shrink:0}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.select-none{-webkit-user-select:none;user-select:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.grid-cols-3{grid-template-columns:repeat(3, minmax(0, 1fr))}.grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.grid-rows-7{grid-template-rows:repeat(7, minmax(0, 1fr))}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-0\.5{gap:0.125rem}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-2\.5{gap:0.625rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.space-y-2 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.5rem * var(--tw-space-y-reverse))}.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.625rem * var(--tw-space-y-reverse))}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.space-y-4 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1rem * var(--tw-space-y-reverse))}.space-y-1 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.25rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.break-words{overflow-wrap:break-word}.rounded{border-radius:0.25rem}.rounded-2xl{border-radius:1rem}.rounded-3xl{border-radius:1.5rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-sm{border-radius:0.125rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-amber-200{--tw-border-opacity:1;border-color:rgb(253 230 138 / var(--tw-border-opacity, 1))}.border-emerald-200{--tw-border-opacity:1;border-color:rgb(167 243 208 / var(--tw-border-opacity, 1))}.border-rose-200{--tw-border-opacity:1;border-color:rgb(254 205 211 / var(--tw-border-opacity, 1))}.border-sky-200{--tw-border-opacity:1;border-color:rgb(186 230 253 / var(--tw-border-opacity, 1))}.border-slate-100{--tw-border-opacity:1;border-color:rgb(241 245 249 / var(--tw-border-opacity, 1))}.border-slate-200{--tw-border-opacity:1;border-color:rgb(226 232 240 / var(--tw-border-opacity, 1))}.bg-slate-50{--tw-bg-opacity:1;background-color:rgb(248 250 252 / var(--tw-bg-opacity, 1))}.bg-amber-100{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.bg-amber-50{--tw-bg-opacity:1;background-color:rgb(255 251 235 / var(--tw-bg-opacity, 1))}.bg-blue-100{--tw-bg-opacity:1;background-color:rgb(219 234 254 / var(--tw-bg-opacity, 1))}.bg-emerald-100{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.bg-emerald-200{--tw-bg-opacity:1;background-color:rgb(167 243 208 / var(--tw-bg-opacity, 1))}.bg-emerald-300{--tw-bg-opacity:1;background-color:rgb(110 231 183 / var(--tw-bg-opacity, 1))}.bg-emerald-400{--tw-bg-opacity:1;background-color:rgb(52 211 153 / var(--tw-bg-opacity, 1))}.bg-emerald-50{--tw-bg-opacity:1;background-color:rgb(236 253 245 / var(--tw-bg-opacity, 1))}.bg-emerald-500{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-emerald-700{--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.bg-indigo-100{--tw-bg-opacity:1;background-color:rgb(224 231 255 / var(--tw-bg-opacity, 1))}.bg-indigo-50{--tw-bg-opacity:1;background-color:rgb(238 242 255 / var(--tw-bg-opacity, 1))}.bg-indigo-600{--tw-bg-opacity:1;background-color:rgb(79 70 229 / var(--tw-bg-opacity, 1))}.bg-rose-50{--tw-bg-opacity:1;background-color:rgb(255 241 242 / var(--tw-bg-opacity, 1))}.bg-rose-600{--tw-bg-opacity:1;background-color:rgb(225 29 72 / var(--tw-bg-opacity, 1))}.bg-sky-50{--tw-bg-opacity:1;background-color:rgb(240 249 255 / var(--tw-bg-opacity, 1))}.bg-slate-100{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.bg-slate-200{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.bg-slate-900{--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.bg-slate-900\/50{background-color:rgb(15 23 42 / 0.5)}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/20{background-color:rgb(255 255 255 / 0.2)}.bg-white\/90{background-color:rgb(255 255 255 / 0.9)}.bg-white\/95{background-color:rgb(255 255 255 / 0.95)}.bg-blue-50{--tw-bg-opacity:1;background-color:rgb(239 246 255 / var(--tw-bg-opacity, 1))}.bg-gradient-to-br{background-image:linear-gradient(to bottom right, var(--tw-gradient-stops))}.from-indigo-600{--tw-gradient-from:#4f46e5 var(--tw-gradient-from-position);--tw-gradient-to:rgb(79 70 229 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-violet-600{--tw-gradient-to:#7c3aed var(--tw-gradient-to-position)}.object-contain{object-fit:contain}.p-1{padding:0.25rem}.p-2{padding:0.5rem}.p-3{padding:0.75rem}.p-3\.5{padding:0.875rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-1{padding-left:0.25rem;padding-right:0.25rem}.px-2{padding-left:0.5rem;padding-right:0.5rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-3\.5{padding-left:0.875rem;padding-right:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.pb-1{padding-bottom:0.25rem}.pb-28{padding-bottom:7rem}.pr-1{padding-right:0.25rem}.pt-0\.5{padding-top:0.125rem}.pt-1{padding-top:0.25rem}.pt-2{padding-top:0.5rem}.pt-4{padding-top:1rem}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[10px\]{font-size:10px}.text-\[11px\]{font-size:11px}.text-base{font-size:1rem;line-height:1.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-none{line-height:1}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.tracking-tight{letter-spacing:-0.025em}.tracking-wider{letter-spacing:0.05em}.tracking-widest{letter-spacing:0.1em}.text-slate-900{--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.text-amber-700{--tw-text-opacity:1;color:rgb(180 83 9 / var(--tw-text-opacity, 1))}.text-amber-800{--tw-text-opacity:1;color:rgb(146 64 14 / var(--tw-text-opacity, 1))}.text-blue-700{--tw-text-opacity:1;color:rgb(29 78 216 / var(--tw-text-opacity, 1))}.text-emerald-600{--tw-text-opacity:1;color:rgb(5 150 105 / var(--tw-text-opacity, 1))}.text-emerald-700{--tw-text-opacity:1;color:rgb(4 120 87 / var(--tw-text-opacity, 1))}.text-indigo-100{--tw-text-opacity:1;color:rgb(224 231 255 / var(--tw-text-opacity, 1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229 / var(--tw-text-opacity, 1))}.text-indigo-700{--tw-text-opacity:1;color:rgb(67 56 202 / var(--tw-text-opacity, 1))}.text-rose-600{--tw-text-opacity:1;color:rgb(225 29 72 / var(--tw-text-opacity, 1))}.text-rose-700{--tw-text-opacity:1;color:rgb(190 18 60 / var(--tw-text-opacity, 1))}.text-sky-600{--tw-text-opacity:1;color:rgb(2 132 199 / var(--tw-text-opacity, 1))}.text-sky-700{--tw-text-opacity:1;color:rgb(3 105 161 / var(--tw-text-opacity, 1))}.text-slate-100{--tw-text-opacity:1;color:rgb(241 245 249 / var(--tw-text-opacity, 1))}.text-slate-400{--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.text-slate-500{--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.text-slate-600{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.text-slate-700{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.opacity-80{opacity:0.8}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-200{transition-duration:200ms}.duration-300{transition-duration:300ms}.hover\:border-indigo-300:hover{--tw-border-opacity:1;border-color:rgb(165 180 252 / var(--tw-border-opacity, 1))}.hover\:bg-amber-100:hover{--tw-bg-opacity:1;background-color:rgb(254 243 199 / var(--tw-bg-opacity, 1))}.hover\:bg-amber-200:hover{--tw-bg-opacity:1;background-color:rgb(253 230 138 / var(--tw-bg-opacity, 1))}.hover\:bg-emerald-100:hover{--tw-bg-opacity:1;background-color:rgb(209 250 229 / var(--tw-bg-opacity, 1))}.hover\:bg-indigo-100:hover{--tw-bg-opacity:1;background-color:rgb(224 231 255 / var(--tw-bg-opacity, 1))}.hover\:bg-indigo-50:hover{--tw-bg-opacity:1;background-color:rgb(238 242 255 / var(--tw-bg-opacity, 1))}.hover\:bg-indigo-700:hover{--tw-bg-opacity:1;background-color:rgb(67 56 202 / var(--tw-bg-opacity, 1))}.hover\:bg-rose-100:hover{--tw-bg-opacity:1;background-color:rgb(255 228 230 / var(--tw-bg-opacity, 1))}.hover\:bg-rose-50:hover{--tw-bg-opacity:1;background-color:rgb(255 241 242 / var(--tw-bg-opacity, 1))}.hover\:bg-rose-700:hover{--tw-bg-opacity:1;background-color:rgb(190 18 60 / var(--tw-bg-opacity, 1))}.hover\:bg-sky-100:hover{--tw-bg-opacity:1;background-color:rgb(224 242 254 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-100:hover{--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200:hover{--tw-bg-opacity:1;background-color:rgb(226 232 240 / var(--tw-bg-opacity, 1))}.hover\:bg-slate-200\/70:hover{background-color:rgb(226 232 240 / 0.7)}.hover\:bg-slate-300:hover{--tw-bg-opacity:1;background-color:rgb(203 213 225 / var(--tw-bg-opacity, 1))}.hover\:text-indigo-600:hover{--tw-text-opacity:1;color:rgb(79 70 229 / var(--tw-text-opacity, 1))}.hover\:text-indigo-700:hover{--tw-text-opacity:1;color:rgb(67 56 202 / var(--tw-text-opacity, 1))}.hover\:text-slate-600:hover{--tw-text-opacity:1;color:rgb(71 85 105 / var(--tw-text-opacity, 1))}.hover\:text-rose-600:hover{--tw-text-opacity:1;color:rgb(225 29 72 / var(--tw-text-opacity, 1))}.hover\:text-slate-700:hover{--tw-text-opacity:1;color:rgb(51 65 85 / var(--tw-text-opacity, 1))}.hover\:underline:hover{-webkit-text-decoration-line:underline;text-decoration-line:underline}.focus\:outline-none:focus{outline:2px solid transparent;outline-offset:2px}.focus\:ring-2:focus{--tw-ring-offset-shadow:var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);--tw-ring-shadow:var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);box-shadow:var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000)}.focus\:ring-indigo-500:focus{--tw-ring-opacity:1;--tw-ring-color:rgb(99 102 241 / var(--tw-ring-opacity, 1))}.dark\:border-amber-800:is(.dark *){--tw-border-opacity:1;border-color:rgb(146 64 14 / var(--tw-border-opacity, 1))}.dark\:border-emerald-800:is(.dark *){--tw-border-opacity:1;border-color:rgb(6 95 70 / var(--tw-border-opacity, 1))}.dark\:border-rose-800:is(.dark *){--tw-border-opacity:1;border-color:rgb(159 18 57 / var(--tw-border-opacity, 1))}.dark\:border-sky-800:is(.dark *){--tw-border-opacity:1;border-color:rgb(7 89 133 / var(--tw-border-opacity, 1))}.dark\:border-slate-700:is(.dark *){--tw-border-opacity:1;border-color:rgb(51 65 85 / var(--tw-border-opacity, 1))}.dark\:border-slate-800:is(.dark *){--tw-border-opacity:1;border-color:rgb(30 41 59 / var(--tw-border-opacity, 1))}.dark\:bg-slate-950:is(.dark *){--tw-bg-opacity:1;background-color:rgb(2 6 23 / var(--tw-bg-opacity, 1))}.dark\:bg-amber-900\/40:is(.dark *){background-color:rgb(120 53 15 / 0.4)}.dark\:bg-amber-900\/50:is(.dark *){background-color:rgb(120 53 15 / 0.5)}.dark\:bg-amber-950\/50:is(.dark *){background-color:rgb(69 26 3 / 0.5)}.dark\:bg-blue-900\/40:is(.dark *){background-color:rgb(30 58 138 / 0.4)}.dark\:bg-emerald-400:is(.dark *){--tw-bg-opacity:1;background-color:rgb(52 211 153 / var(--tw-bg-opacity, 1))}.dark\:bg-emerald-500:is(.dark *){--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.dark\:bg-emerald-700:is(.dark *){--tw-bg-opacity:1;background-color:rgb(4 120 87 / var(--tw-bg-opacity, 1))}.dark\:bg-emerald-900\/40:is(.dark *){background-color:rgb(6 78 59 / 0.4)}.dark\:bg-emerald-900\/70:is(.dark *){background-color:rgb(6 78 59 / 0.7)}.dark\:bg-emerald-950\/50:is(.dark *){background-color:rgb(2 44 34 / 0.5)}.dark\:bg-emerald-950\/60:is(.dark *){background-color:rgb(2 44 34 / 0.6)}.dark\:bg-indigo-900\/40:is(.dark *){background-color:rgb(49 46 129 / 0.4)}.dark\:bg-indigo-950\/60:is(.dark *){background-color:rgb(30 27 75 / 0.6)}.dark\:bg-rose-950\/50:is(.dark *){background-color:rgb(76 5 25 / 0.5)}.dark\:bg-rose-950\/60:is(.dark *){background-color:rgb(76 5 25 / 0.6)}.dark\:bg-sky-950\/50:is(.dark *){background-color:rgb(8 47 73 / 0.5)}.dark\:bg-sky-950\/60:is(.dark *){background-color:rgb(8 47 73 / 0.6)}.dark\:bg-slate-100:is(.dark *){--tw-bg-opacity:1;background-color:rgb(241 245 249 / var(--tw-bg-opacity, 1))}.dark\:bg-slate-800:is(.dark *){--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.dark\:bg-slate-900:is(.dark *){--tw-bg-opacity:1;background-color:rgb(15 23 42 / var(--tw-bg-opacity, 1))}.dark\:bg-slate-900\/90:is(.dark *){background-color:rgb(15 23 42 / 0.9)}.dark\:bg-slate-900\/95:is(.dark *){background-color:rgb(15 23 42 / 0.95)}.dark\:text-slate-100:is(.dark *){--tw-text-opacity:1;color:rgb(241 245 249 / var(--tw-text-opacity, 1))}.dark\:text-amber-300:is(.dark *){--tw-text-opacity:1;color:rgb(252 211 77 / var(--tw-text-opacity, 1))}.dark\:text-blue-300:is(.dark *){--tw-text-opacity:1;color:rgb(147 197 253 / var(--tw-text-opacity, 1))}.dark\:text-emerald-300:is(.dark *){--tw-text-opacity:1;color:rgb(110 231 183 / var(--tw-text-opacity, 1))}.dark\:text-emerald-400:is(.dark *){--tw-text-opacity:1;color:rgb(52 211 153 / var(--tw-text-opacity, 1))}.dark\:text-indigo-300:is(.dark *){--tw-text-opacity:1;color:rgb(165 180 252 / var(--tw-text-opacity, 1))}.dark\:text-indigo-400:is(.dark *){--tw-text-opacity:1;color:rgb(129 140 248 / var(--tw-text-opacity, 1))}.dark\:text-rose-300:is(.dark *){--tw-text-opacity:1;color:rgb(253 164 175 / var(--tw-text-opacity, 1))}.dark\:text-rose-400:is(.dark *){--tw-text-opacity:1;color:rgb(251 113 133 / var(--tw-text-opacity, 1))}.dark\:text-sky-300:is(.dark *){--tw-text-opacity:1;color:rgb(125 211 252 / var(--tw-text-opacity, 1))}.dark\:text-sky-400:is(.dark *){--tw-text-opacity:1;color:rgb(56 189 248 / var(--tw-text-opacity, 1))}.dark\:text-slate-200:is(.dark *){--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}.dark\:text-slate-300:is(.dark *){--tw-text-opacity:1;color:rgb(203 213 225 / var(--tw-text-opacity, 1))}.dark\:text-slate-400:is(.dark *){--tw-text-opacity:1;color:rgb(148 163 184 / var(--tw-text-opacity, 1))}.dark\:text-slate-500:is(.dark *){--tw-text-opacity:1;color:rgb(100 116 139 / var(--tw-text-opacity, 1))}.dark\:text-slate-900:is(.dark *){--tw-text-opacity:1;color:rgb(15 23 42 / var(--tw-text-opacity, 1))}.dark\:hover\:border-indigo-700:hover:is(.dark *){--tw-border-opacity:1;border-color:rgb(67 56 202 / var(--tw-border-opacity, 1))}.dark\:hover\:bg-amber-900\/50:hover:is(.dark *){background-color:rgb(120 53 15 / 0.5)}.dark\:hover\:bg-emerald-900\/50:hover:is(.dark *){background-color:rgb(6 78 59 / 0.5)}.dark\:hover\:bg-indigo-900\/50:hover:is(.dark *){background-color:rgb(49 46 129 / 0.5)}.dark\:hover\:bg-indigo-900\/60:hover:is(.dark *){background-color:rgb(49 46 129 / 0.6)}.dark\:hover\:bg-rose-900\/50:hover:is(.dark *){background-color:rgb(136 19 55 / 0.5)}.dark\:hover\:bg-rose-950\/50:hover:is(.dark *){background-color:rgb(76 5 25 / 0.5)}.dark\:hover\:bg-sky-900\/50:hover:is(.dark *){background-color:rgb(12 74 110 / 0.5)}.dark\:hover\:bg-slate-700:hover:is(.dark *){--tw-bg-opacity:1;background-color:rgb(51 65 85 / var(--tw-bg-opacity, 1))}.dark\:hover\:bg-slate-800:hover:is(.dark *){--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.dark\:hover\:bg-indigo-950\/50:hover:is(.dark *){background-color:rgb(30 27 75 / 0.5)}.dark\:hover\:text-indigo-300:hover:is(.dark *){--tw-text-opacity:1;color:rgb(165 180 252 / var(--tw-text-opacity, 1))}.dark\:hover\:text-indigo-400:hover:is(.dark *){--tw-text-opacity:1;color:rgb(129 140 248 / var(--tw-text-opacity, 1))}.dark\:hover\:text-slate-200:hover:is(.dark *){--tw-text-opacity:1;color:rgb(226 232 240 / var(--tw-text-opacity, 1))}@media (min-width: 640px){.sm\:inline{display:inline}.sm\:min-h-\[360px\]{min-height:360px}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}.sm\:flex-row{flex-direction:row}.sm\:items-center{align-items:center}.sm\:p-5{padding:1.25rem}.sm\:p-8{padding:2rem}.sm\:text-2xl{font-size:1.5rem;line-height:2rem}.sm\:text-3xl{font-size:1.875rem;line-height:2.25rem}.sm\:text-sm{font-size:0.875rem;line-height:1.25rem}.sm\:text-xl{font-size:1.25rem;line-height:1.75rem}}@media (min-width: 768px){.md\:min-h-\[400px\]{min-height:400px}.md\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}}</style></head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
 
   <!-- Passcode Lock Overlay -->
@@ -50,7 +73,7 @@
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-xl text-center">
       <div class="w-12 h-12 mx-auto rounded-2xl bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 flex items-center justify-center">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
         </svg>
       </div>
       <div>
@@ -58,7 +81,7 @@
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">パスコードを入力して学習を再開してください</p>
       </div>
       <form id="unlock-form" class="space-y-3">
-        <input id="unlock-passcode-input" type="password" inputmode="numeric" placeholder="パスコードを入力" required class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center text-base tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        <input id="unlock-passcode-input" type="password" inputmode="numeric" placeholder="パスコードを入力" required="" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center text-base tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500">
         <p id="unlock-error-msg" class="hidden text-xs text-rose-600 dark:text-rose-400 font-medium">パスコードが違います</p>
         <button type="submit" class="tap-scale w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm">
           ロック解除
@@ -68,12 +91,12 @@
   </div>
 
   <!-- Top App Bar -->
-  <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800">
-    <div class="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
+  <header class="safe-top sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
       <div class="flex items-center gap-2.5 min-w-0">
         <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold shadow-sm shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
           </svg>
         </div>
         <div class="truncate">
@@ -84,9 +107,9 @@
       <div class="flex items-center gap-2 shrink-0">
         <button id="sync-header-btn" type="button" title="クラウド同期" class="hidden inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors">
           <svg id="sync-header-icon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
-          <span id="sync-header-label">同期</span>
+          <span id="sync-header-label">同期済み</span>
         </button>
         <span id="streak-badge" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
           <span>🔥</span>
@@ -94,10 +117,10 @@
         </span>
         <button id="theme-toggle-btn" type="button" aria-label="テーマ切り替え" class="p-2 rounded-xl text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
           <svg id="theme-icon-sun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
           </svg>
           <svg id="theme-icon-moon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
           </svg>
         </button>
       </div>
@@ -105,10 +128,10 @@
   </header>
 
   <!-- Main Content Area -->
-  <main class="flex-1 max-w-3xl w-full mx-auto px-4 pt-4 pb-24">
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 pt-4 pb-28">
 
     <!-- VIEW 1: DECKS -->
-    <section id="view-decks" class="space-y-4">
+    <section id="view-decks" class="space-y-4 hidden">
       <!-- Daily Summary Card -->
       <div class="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-4 sm:p-5 text-white shadow-md">
         <div class="flex items-center justify-between gap-3">
@@ -123,7 +146,7 @@
         <div class="mt-3">
           <div class="flex justify-between text-xs text-indigo-100 mb-1">
             <span>本日の目標進捗</span>
-            <span id="today-due-summary">残り 0 枚</span>
+            <span id="today-due-summary">復習待ち 7 枚</span>
           </div>
           <div class="w-full h-2 bg-white/20 rounded-full overflow-hidden">
             <div id="today-progress-bar" class="h-full bg-emerald-300 rounded-full transition-all duration-300" style="width: 0%"></div>
@@ -136,14 +159,72 @@
         <h3 class="text-sm font-semibold text-slate-600 dark:text-slate-400">デッキ一覧</h3>
         <button id="open-new-deck-btn" type="button" class="tap-scale inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
           </svg>
           新規デッキ
         </button>
       </div>
 
       <!-- Deck Cards Container -->
-      <div id="deck-list-container" class="space-y-3"></div>
+      <div id="deck-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  <h4 class="font-bold text-base truncate">ビジネス・日常英単語</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">スキマ時間で覚える重要語彙</p>
+                  <div class="flex flex-wrap items-center gap-2 mt-2.5 text-xs">
+                    <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-semibold">新規 4</span>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 font-semibold">復習 0</span>
+                    <span class="text-slate-400">全 4 枚</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button type="button" data-action="study-deck" data-id="deck_en" class="tap-scale px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm">
+                    学習
+                  </button>
+                  <button type="button" data-action="edit-deck" data-id="deck_en" aria-label="デッキ編集" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                  </button>
+                  <button type="button" data-action="delete-deck" data-id="deck_en" aria-label="デッキ削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  <h4 class="font-bold text-base truncate">IT・プログラミング基礎</h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">開発でよく使う用語と概念</p>
+                  <div class="flex flex-wrap items-center gap-2 mt-2.5 text-xs">
+                    <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-semibold">新規 3</span>
+                    <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 font-semibold">復習 0</span>
+                    <span class="text-slate-400">全 3 枚</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button type="button" data-action="study-deck" data-id="deck_cs" class="tap-scale px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm">
+                    学習
+                  </button>
+                  <button type="button" data-action="edit-deck" data-id="deck_cs" aria-label="デッキ編集" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                  </button>
+                  <button type="button" data-action="delete-deck" data-id="deck_cs" aria-label="デッキ削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
     </section>
 
     <!-- VIEW 2: STUDY -->
@@ -151,7 +232,7 @@
       <div class="flex items-center justify-between gap-2">
         <button id="study-back-btn" type="button" class="tap-scale inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
           </svg>
           デッキに戻る
         </button>
@@ -161,18 +242,34 @@
 
       <!-- Study Active Card -->
       <div id="study-card-area" class="space-y-4">
-        <div id="flashcard-box" class="card-flip-container bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm min-h-[280px] sm:min-h-[340px] p-6 sm:p-8 flex flex-col justify-between cursor-pointer select-none transition-all">
+        <div id="flashcard-box" class="card-flip-container bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm min-h-[280px] sm:min-h-[360px] md:min-h-[400px] p-6 sm:p-8 flex flex-col justify-between cursor-pointer select-none transition-all">
           <div class="flex items-center justify-between text-xs text-slate-400">
             <span id="card-status-pill" class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-medium">新規</span>
             <span id="card-deck-label" class="truncate max-w-[180px]"></span>
           </div>
 
           <div class="my-auto py-6 text-center space-y-4">
-            <div id="card-front-text" class="text-2xl sm:text-3xl font-bold leading-snug break-words"></div>
+            <img id="card-front-img" alt="表面画像" class="hidden max-h-56 max-w-full h-auto mx-auto rounded-xl object-contain border border-slate-200 dark:border-slate-700">
+            <div class="flex items-center justify-center gap-2">
+              <div id="card-front-text" class="text-2xl sm:text-3xl font-bold leading-snug break-words"></div>
+              <button id="speak-front-btn" type="button" aria-label="表面を読み上げ" class="hidden tap-scale shrink-0 p-2 rounded-full bg-slate-100 hover:bg-indigo-100 text-slate-600 hover:text-indigo-700 dark:bg-slate-800 dark:hover:bg-indigo-900/50 dark:text-slate-300 dark:hover:text-indigo-300 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                </svg>
+              </button>
+            </div>
             <div id="card-front-hint" class="text-xs text-slate-400 dark:text-slate-500"></div>
 
-            <div id="card-answer-divider" class="hidden border-t border-slate-200 dark:border-slate-800 my-4 pt-4">
-              <div id="card-back-text" class="text-lg sm:text-xl font-medium text-indigo-700 dark:text-indigo-300 leading-relaxed break-words"></div>
+            <div id="card-answer-divider" class="hidden border-t border-slate-200 dark:border-slate-800 my-4 pt-4 space-y-3">
+              <img id="card-back-img" alt="裏面画像" class="hidden max-h-56 max-w-full h-auto mx-auto rounded-xl object-contain border border-slate-200 dark:border-slate-700">
+              <div class="flex items-center justify-center gap-2">
+                <div id="card-back-text" class="text-lg sm:text-xl font-medium text-indigo-700 dark:text-indigo-300 leading-relaxed break-words"></div>
+                <button id="speak-back-btn" type="button" aria-label="裏面を読み上げ" class="hidden tap-scale shrink-0 p-2 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 dark:text-indigo-300 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+                  </svg>
+                </button>
+              </div>
               <div id="card-note-text" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 break-words"></div>
             </div>
           </div>
@@ -230,12 +327,12 @@
     </section>
 
     <!-- VIEW 3: BROWSE / MANAGE CARDS -->
-    <section id="view-browse" class="hidden space-y-4">
+    <section id="view-browse" class="space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <h2 class="text-lg font-bold">カード管理</h2>
         <button id="open-add-card-btn" type="button" class="tap-scale inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
           </svg>
           カードを追加
         </button>
@@ -243,19 +340,229 @@
 
       <!-- Search & Filter -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <input id="browse-search-input" type="text" placeholder="表面・裏面・メモを検索..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        <select id="browse-deck-filter" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          <option value="all">すべてのデッキ</option>
-        </select>
+        <input id="browse-search-input" type="text" placeholder="表面・裏面・メモを検索..." class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <select id="browse-deck-filter" class="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="all">すべてのデッキ</option><option value="deck_en">ビジネス・日常英単語</option><option value="deck_cs">IT・プログラミング基礎</option></select>
       </div>
 
-      <div class="text-xs text-slate-500 dark:text-slate-400" id="browse-count-label">0 枚のカード</div>
-      <div id="browse-cards-list" class="space-y-2.5"></div>
+      <div class="text-xs text-slate-500 dark:text-slate-400" id="browse-count-label">7 枚のカード</div>
+      <div id="browse-cards-list" class="space-y-2.5">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-[140px]">ビジネス・日常英単語</span>
+                  <span class="text-[11px] text-slate-400">新規</span>
+                  
+                </div>
+                <p class="font-semibold text-sm break-words">ubiquitous</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 break-words">至る所にある、遍在する</p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-action="edit-card" data-id="c1" aria-label="カード編集" class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button type="button" data-action="delete-card" data-id="c1" aria-label="カード削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-[140px]">ビジネス・日常英単語</span>
+                  <span class="text-[11px] text-slate-400">新規</span>
+                  
+                </div>
+                <p class="font-semibold text-sm break-words">mitigate</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 break-words">緩和する、軽減する</p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-action="edit-card" data-id="c2" aria-label="カード編集" class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button type="button" data-action="delete-card" data-id="c2" aria-label="カード削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-[140px]">ビジネス・日常英単語</span>
+                  <span class="text-[11px] text-slate-400">新規</span>
+                  
+                </div>
+                <p class="font-semibold text-sm break-words">feasible</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 break-words">実行可能な、実現できる</p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-action="edit-card" data-id="c3" aria-label="カード編集" class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button type="button" data-action="delete-card" data-id="c3" aria-label="カード削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-[140px]">ビジネス・日常英単語</span>
+                  <span class="text-[11px] text-slate-400">新規</span>
+                  
+                </div>
+                <p class="font-semibold text-sm break-words">streamline</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 break-words">効率化する、合理化する</p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-action="edit-card" data-id="c4" aria-label="カード編集" class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button type="button" data-action="delete-card" data-id="c4" aria-label="カード削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-[140px]">IT・プログラミング基礎</span>
+                  <span class="text-[11px] text-slate-400">新規</span>
+                  
+                </div>
+                <p class="font-semibold text-sm break-words">Idempotency（べき等性）</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 break-words">同じ操作を何度実行しても結果が同じになる性質</p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-action="edit-card" data-id="c5" aria-label="カード編集" class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button type="button" data-action="delete-card" data-id="c5" aria-label="カード削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-[140px]">IT・プログラミング基礎</span>
+                  <span class="text-[11px] text-slate-400">新規</span>
+                  
+                </div>
+                <p class="font-semibold text-sm break-words">Spaced Repetition（間隔反復）</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 break-words">忘却曲線に基づき復習間隔を徐々に延ばす学習法</p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-action="edit-card" data-id="c6" aria-label="カード編集" class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button type="button" data-action="delete-card" data-id="c6" aria-label="カード削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3.5 flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1 space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-[140px]">IT・プログラミング基礎</span>
+                  <span class="text-[11px] text-slate-400">新規</span>
+                  
+                </div>
+                <p class="font-semibold text-sm break-words">PWA (Progressive Web App)</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 break-words">Webサイトをスマホアプリのようにホーム画面へ追加・オフライン動作させる技術</p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" data-action="edit-card" data-id="c7" aria-label="カード編集" class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button type="button" data-action="delete-card" data-id="c7" aria-label="カード削除" class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
     </section>
 
     <!-- VIEW 4: STATS & DATA -->
     <section id="view-stats" class="hidden space-y-4">
       <h2 class="text-lg font-bold">学習統計・データ管理</h2>
+
+      <!-- Review Heatmap Card -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <h3 class="text-sm font-semibold">Review Heatmap</h3>
+            <span class="text-[11px] text-slate-400">過去6ヶ月</span>
+          </div>
+          <span id="heatmap-selected-info" class="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 truncate">マスをタップして詳細</span>
+        </div>
+
+        <div id="heatmap-scroll-wrap" class="overflow-x-auto pb-1">
+          <div class="inline-flex gap-1.5 items-start">
+            <!-- Day of week labels -->
+            <div class="grid grid-rows-7 gap-1 text-[10px] text-slate-400 pr-1 select-none leading-none pt-0.5">
+              <span class="h-3 flex items-center">日</span>
+              <span class="h-3 flex items-center"></span>
+              <span class="h-3 flex items-center">火</span>
+              <span class="h-3 flex items-center"></span>
+              <span class="h-3 flex items-center">木</span>
+              <span class="h-3 flex items-center"></span>
+              <span class="h-3 flex items-center">土</span>
+            </div>
+            <!-- Weeks grid injected by JS -->
+            <div id="heatmap-grid" class="flex gap-1"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-slate-500 dark:text-slate-400">
+          <div class="flex items-center gap-3">
+            <span>平均 <strong id="heatmap-avg" class="text-slate-700 dark:text-slate-200">0</strong> 枚/日</span>
+            <span>最高 <strong id="heatmap-max" class="text-slate-700 dark:text-slate-200">0</strong> 枚</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <span>少</span>
+            <span class="w-2.5 h-2.5 rounded-sm bg-slate-100 dark:bg-slate-800 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-sm bg-emerald-200 dark:bg-emerald-900/70 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400 dark:bg-emerald-700 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 dark:bg-emerald-500 inline-block"></span>
+            <span class="w-2.5 h-2.5 rounded-sm bg-emerald-700 dark:bg-emerald-400 inline-block"></span>
+            <span>多</span>
+          </div>
+        </div>
+      </div>
 
       <!-- KPI Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -295,8 +602,8 @@
           Google Apps Script（GAS）のウェブアプリURLをPCとスマホの両方に設定すると、学習のたびに自動でクラウド保存・同期されます。
         </p>
         <div class="space-y-2">
-          <input id="sync-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          <input id="sync-secret-input" type="password" placeholder="同期の合言葉（GAS側と合わせる・任意）" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input id="sync-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input id="sync-secret-input" type="password" placeholder="同期の合言葉（GAS側と合わせる・任意）" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
           <div class="flex flex-wrap gap-2">
             <button id="save-sync-url-btn" type="button" class="tap-scale px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold">
               URLを保存して同期
@@ -316,7 +623,7 @@
           <summary class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 cursor-pointer select-none">GAS設定用コードをコピー（初回のみ）</summary>
           <div class="mt-2 space-y-2">
             <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-              1. Googleスプレッドシートを新規作成 →「拡張機能」→「Apps Script」を開く<br/>
+              1. Googleスプレッドシートを新規作成 →「拡張機能」→「Apps Script」を開く<br>
               2. 下のコードを貼り付けて保存 →「デプロイ」→「新しいデプロイ」→ 種類「ウェブアプリ」、アクセスできるユーザー「全員」でデプロイし、発行されたURLを上に貼り付けます。
             </p>
             <pre id="gas-code-block" class="p-3 rounded-xl bg-slate-900 text-slate-100 text-[11px] overflow-x-auto leading-relaxed">var SECRET_KEY = ""; // 任意の合言葉を設定すると他人のアクセスを遮断できます
@@ -350,6 +657,79 @@ function doPost(e) {
         </details>
       </div>
 
+      <!-- Study & Interval Settings -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="text-sm font-semibold">復習間隔・学習設定</h3>
+          <button id="reset-settings-btn" type="button" class="text-xs font-medium text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400">初期値に戻す</button>
+        </div>
+        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+          評価ボタンを押したときの次回間隔や、1日の目標枚数を好みに合わせて変更できます（クラウド同期対応）。
+        </p>
+        <form id="settings-form" class="space-y-3">
+          <div class="grid grid-cols-2 gap-2.5 text-xs">
+            <div>
+              <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">「もう一度」待機 (分)</label>
+              <input id="setting-again-min" type="number" min="1" max="1440" required="" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">「難しい」初回待機 (分)</label>
+              <input id="setting-hard-min" type="number" min="1" max="1440" required="" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">「良い」初回間隔 (日)</label>
+              <input id="setting-good-1" type="number" min="1" max="365" required="" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">「良い」2回目間隔 (日)</label>
+              <input id="setting-good-2" type="number" min="1" max="365" required="" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">「簡単」初回間隔 (日)</label>
+              <input id="setting-easy-1" type="number" min="1" max="365" required="" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">「簡単」倍率ボーナス</label>
+              <input id="setting-easy-bonus" type="number" min="1.0" max="3.0" step="0.1" required="" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">最大復習間隔 (日)</label>
+              <input id="setting-max-interval" type="number" min="7" max="3650" required="" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+              <label class="block font-medium text-slate-600 dark:text-slate-400 mb-1">1日の目標枚数 (枚)</label>
+              <input id="setting-daily-goal" type="number" min="1" max="500" required="" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2 text-xs">
+            <p class="font-semibold text-slate-600 dark:text-slate-300">音声読み上げ設定（日英自動判定）</p>
+            <div class="flex flex-wrap gap-4">
+              <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                <input id="setting-auto-speak-front" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
+                <span>表面を自動読み上げ</span>
+              </label>
+              <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                <input id="setting-auto-speak-back" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
+                <span>裏面を自動読み上げ</span>
+              </label>
+            </div>
+            <div class="flex items-center gap-2 max-w-xs">
+              <label class="font-medium text-slate-600 dark:text-slate-400 shrink-0">読み上げ速度</label>
+              <select id="setting-speech-rate" class="px-2.5 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                <option value="0.75">0.75x（ゆっくり）</option>
+                <option value="0.9">0.9x</option>
+                <option value="1">1.0x（標準）</option>
+                <option value="1.15">1.15x</option>
+                <option value="1.3">1.3x（速め）</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="tap-scale px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold">
+            設定を保存
+          </button>
+        </form>
+      </div>
+
       <!-- App Passcode Lock -->
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
         <div class="flex items-center justify-between gap-2">
@@ -360,7 +740,7 @@ function doPost(e) {
           設定すると、アプリを開いたときにパスコード入力を求めるようになります（この端末のみに保存されます）。
         </p>
         <div class="flex flex-wrap gap-2 items-center">
-          <input id="passcode-set-input" type="password" inputmode="numeric" placeholder="新しいパスコード" class="flex-1 min-w-[160px] px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input id="passcode-set-input" type="password" inputmode="numeric" placeholder="新しいパスコード" class="flex-1 min-w-[160px] px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
           <button id="save-passcode-btn" type="button" class="tap-scale px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold">
             設定
           </button>
@@ -382,7 +762,7 @@ function doPost(e) {
           </button>
           <label class="tap-scale px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs sm:text-sm font-semibold cursor-pointer">
             JSON読み込み
-            <input id="import-json-input" type="file" accept=".json" class="hidden" />
+            <input id="import-json-input" type="file" accept=".json" class="hidden">
           </label>
           <button id="open-csv-import-btn" type="button" class="tap-scale px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 dark:text-indigo-300 text-xs sm:text-sm font-semibold">
             CSV/テキスト一括登録
@@ -394,23 +774,23 @@ function doPost(e) {
   </main>
 
   <!-- Bottom Navigation Bar (Mobile-first) -->
-  <nav class="fixed bottom-0 inset-x-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-t border-slate-200 dark:border-slate-800">
-    <div class="max-w-3xl mx-auto grid grid-cols-3 h-16">
-      <button type="button" data-nav="decks" class="nav-btn flex flex-col items-center justify-center gap-0.5 text-indigo-600 dark:text-indigo-400 font-semibold text-xs">
+  <nav class="safe-bottom fixed bottom-0 inset-x-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-t border-slate-200 dark:border-slate-800">
+    <div class="max-w-4xl mx-auto grid grid-cols-3 h-16">
+      <button type="button" data-nav="decks" class="nav-btn flex flex-col items-center justify-center gap-0.5 text-xs text-slate-500 dark:text-slate-400">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
         </svg>
         <span>デッキ</span>
       </button>
-      <button type="button" data-nav="browse" class="nav-btn flex flex-col items-center justify-center gap-0.5 text-slate-500 dark:text-slate-400 font-medium text-xs">
+      <button type="button" data-nav="browse" class="nav-btn flex flex-col items-center justify-center gap-0.5 font-medium text-xs text-indigo-600 dark:text-indigo-400 font-semibold">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
         </svg>
         <span>カード管理</span>
       </button>
       <button type="button" data-nav="stats" class="nav-btn flex flex-col items-center justify-center gap-0.5 text-slate-500 dark:text-slate-400 font-medium text-xs">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
         </svg>
         <span>統計・設定</span>
       </button>
@@ -425,14 +805,14 @@ function doPost(e) {
         <button type="button" class="close-modal-btn text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">✕</button>
       </div>
       <form id="deck-form" class="space-y-3">
-        <input type="hidden" id="deck-form-id" />
+        <input type="hidden" id="deck-form-id">
         <div>
           <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">デッキ名</label>
-          <input id="deck-form-name" type="text" required placeholder="例: TOEIC 重要単語" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input id="deck-form-name" type="text" required="" placeholder="例: TOEIC 重要単語" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">説明（任意）</label>
-          <input id="deck-form-desc" type="text" placeholder="例: 通勤中に覚えるフレーズ集" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input id="deck-form-desc" type="text" placeholder="例: 通勤中に覚えるフレーズ集" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">キャンセル</button>
@@ -443,29 +823,65 @@ function doPost(e) {
   </div>
 
   <!-- MODAL: Add/Edit Card -->
-  <div id="card-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
+  <div id="card-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 space-y-4 shadow-xl">
       <div class="flex items-center justify-between">
-        <h3 id="card-modal-title" class="text-base font-bold">カードを追加</h3>
+        <h3 id="card-modal-title" class="text-base font-bold">カードを編集</h3>
         <button type="button" class="close-modal-btn text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">✕</button>
       </div>
       <form id="card-form" class="space-y-3">
-        <input type="hidden" id="card-form-id" />
+        <input type="hidden" id="card-form-id" value="c2">
         <div>
           <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">デッキ</label>
-          <select id="card-form-deck" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+          <select id="card-form-deck" required="" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="deck_en">ビジネス・日常英単語</option><option value="deck_cs">IT・プログラミング基礎</option></select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">表面（問題）</label>
-          <textarea id="card-form-front" rows="2" required placeholder="問題や単語を入力..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">表面（問題）</label>
+            <div class="flex items-center gap-1 flex-wrap" data-fmt-target="card-form-front">
+              <button type="button" data-fmt="b" class="fmt-btn px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold">B</button>
+              <button type="button" data-fmt="red" class="fmt-btn px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 text-xs font-semibold">赤</button>
+              <button type="button" data-fmt="blue" class="fmt-btn px-2 py-0.5 rounded bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 text-xs font-semibold">青</button>
+              <button type="button" data-fmt="green" class="fmt-btn px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">緑</button>
+              <button type="button" data-fmt="hl" class="fmt-btn px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-semibold">黄</button>
+              <button type="button" data-fmt="clear" class="fmt-btn px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs">解除</button>
+            </div>
+          </div>
+          <div id="card-form-front" contenteditable="true" data-placeholder="問題や単語を入力（写真のみでも可）..." class="w-full min-h-[68px] max-h-40 overflow-y-auto px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed">mitigate</div>
+          <div class="mt-1.5 flex items-center gap-2 flex-wrap">
+            <label class="tap-scale inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium cursor-pointer">
+              <span>📷 表面に写真を追加</span>
+              <input id="card-form-front-img-input" type="file" accept="image/*" class="hidden">
+            </label>
+            <button id="card-form-front-img-clear" type="button" class="hidden text-xs text-rose-600 dark:text-rose-400 font-medium hover:underline">写真を削除</button>
+          </div>
+          <img id="card-form-front-img-preview" alt="表面プレビュー" class="hidden mt-2 max-h-28 max-w-full h-auto rounded-lg border border-slate-200 dark:border-slate-700 object-contain">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">裏面（答え）</label>
-          <textarea id="card-form-back" rows="2" required placeholder="意味や解答を入力..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">裏面（答え）</label>
+            <div class="flex items-center gap-1 flex-wrap" data-fmt-target="card-form-back">
+              <button type="button" data-fmt="b" class="fmt-btn px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold">B</button>
+              <button type="button" data-fmt="red" class="fmt-btn px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 text-xs font-semibold">赤</button>
+              <button type="button" data-fmt="blue" class="fmt-btn px-2 py-0.5 rounded bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-400 text-xs font-semibold">青</button>
+              <button type="button" data-fmt="green" class="fmt-btn px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">緑</button>
+              <button type="button" data-fmt="hl" class="fmt-btn px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 text-xs font-semibold">黄</button>
+              <button type="button" data-fmt="clear" class="fmt-btn px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 text-xs">解除</button>
+            </div>
+          </div>
+          <div id="card-form-back" contenteditable="true" data-placeholder="意味や解答を入力（写真のみでも可）..." class="w-full min-h-[68px] max-h-40 overflow-y-auto px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed">緩和する、軽減する</div>
+          <div class="mt-1.5 flex items-center gap-2 flex-wrap">
+            <label class="tap-scale inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-medium cursor-pointer">
+              <span>📷 裏面に写真を追加</span>
+              <input id="card-form-back-img-input" type="file" accept="image/*" class="hidden">
+            </label>
+            <button id="card-form-back-img-clear" type="button" class="hidden text-xs text-rose-600 dark:text-rose-400 font-medium hover:underline">写真を削除</button>
+          </div>
+          <img id="card-form-back-img-preview" alt="裏面プレビュー" class="hidden mt-2 max-h-28 max-w-full h-auto rounded-lg border border-slate-200 dark:border-slate-700 object-contain">
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">メモ・例文（任意）</label>
-          <input id="card-form-note" type="text" placeholder="補足や例文を入力..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <input id="card-form-note" type="text" placeholder="補足や例文を入力..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">キャンセル</button>
@@ -485,11 +901,12 @@ function doPost(e) {
       <form id="csv-form" class="space-y-3">
         <div>
           <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">追加先デッキ</label>
-          <select id="csv-form-deck" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"></select>
+          <select id="csv-form-deck" required="" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"></select>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">1行1カード（「表面,裏面」またはタブ区切り）</label>
-          <textarea id="csv-form-text" rows="5" required placeholder="ubiquitous,至る所にある&#10;resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          <textarea id="csv-form-text" rows="5" required="" placeholder="ubiquitous,至る所にある
+resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">キャンセル</button>
@@ -517,7 +934,23 @@ function doPost(e) {
   <script>
     (() => {
       const STORAGE_KEY = 'flashrecall_anki_v1';
-      const DAILY_GOAL = 20;
+      const DEFAULT_SETTINGS = {
+        againMin: 1,
+        hardMin: 10,
+        goodFirstDays: 1,
+        goodSecondDays: 6,
+        easyFirstDays: 4,
+        easyBonus: 1.3,
+        maxInterval: 365,
+        dailyGoal: 20,
+        autoSpeakFront: false,
+        autoSpeakBack: false,
+        speechRate: 1.0
+      };
+
+      function getSettings() {
+        return Object.assign({}, DEFAULT_SETTINGS, (state && state.settings) || {});
+      }
       const MIN_MS = 60 * 1000;
       const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -529,6 +962,7 @@ function doPost(e) {
         const now = Date.now();
         return {
           theme: 'light',
+          settings: Object.assign({}, DEFAULT_SETTINGS),
           decks: [
             { id: 'deck_en', name: 'ビジネス・日常英単語', desc: 'スキマ時間で覚える重要語彙' },
             { id: 'deck_cs', name: 'IT・プログラミング基礎', desc: '開発でよく使う用語と概念' }
@@ -548,7 +982,8 @@ function doPost(e) {
             todayDate: getTodayKey(),
             todayReviewed: 0,
             streak: 0,
-            lastStudyDate: null
+            lastStudyDate: null,
+            history: {}
           }
         };
       }
@@ -572,6 +1007,12 @@ function doPost(e) {
           if (parsed.stats.todayDate !== today) {
             parsed.stats.todayDate = today;
             parsed.stats.todayReviewed = 0;
+          }
+          if (!parsed.stats.history || typeof parsed.stats.history !== 'object') {
+            parsed.stats.history = {};
+          }
+          if (parsed.stats.todayReviewed > 0 && !parsed.stats.history[today]) {
+            parsed.stats.history[today] = parsed.stats.todayReviewed;
           }
           return parsed;
         } catch (e) {
@@ -781,9 +1222,10 @@ function doPost(e) {
         }
       }
 
-      // SM-2 Algorithm calculation
+      // SM-2 Algorithm calculation (customizable)
       function computeNextSchedule(card, grade) {
         // grade: 1=Again, 2=Hard, 3=Good, 4=Easy
+        const cfg = getSettings();
         let ease = card.ease || 2.5;
         let reps = card.reps || 0;
         let intervalDays = card.interval || 0;
@@ -794,38 +1236,40 @@ function doPost(e) {
           reps = 0;
           intervalDays = 0;
           ease = Math.max(1.3, ease - 0.2);
-          nextDueOffsetMs = 1 * MIN_MS;
-          label = '1分';
+          nextDueOffsetMs = cfg.againMin * MIN_MS;
+          label = `${cfg.againMin}分`;
         } else if (grade === 2) {
           if (reps === 0) {
             intervalDays = 0;
-            nextDueOffsetMs = 10 * MIN_MS;
-            label = '10分';
+            nextDueOffsetMs = cfg.hardMin * MIN_MS;
+            label = `${cfg.hardMin}分`;
           } else {
-            intervalDays = Math.max(1, Math.round(intervalDays * 1.2));
+            intervalDays = Math.min(cfg.maxInterval, Math.max(1, Math.round(intervalDays * 1.2)));
             nextDueOffsetMs = intervalDays * DAY_MS;
             label = `${intervalDays}日`;
           }
           ease = Math.max(1.3, ease - 0.15);
         } else if (grade === 3) {
           if (reps === 0) {
-            intervalDays = 1;
+            intervalDays = cfg.goodFirstDays;
           } else if (reps === 1) {
-            intervalDays = 6;
+            intervalDays = cfg.goodSecondDays;
           } else {
             intervalDays = Math.round(intervalDays * ease);
           }
+          intervalDays = Math.min(cfg.maxInterval, Math.max(1, intervalDays));
           reps += 1;
           nextDueOffsetMs = intervalDays * DAY_MS;
           label = `${intervalDays}日`;
         } else if (grade === 4) {
           if (reps === 0) {
-            intervalDays = 4;
+            intervalDays = cfg.easyFirstDays;
           } else if (reps === 1) {
-            intervalDays = 10;
+            intervalDays = Math.max(cfg.easyFirstDays + 2, Math.round(cfg.goodSecondDays * cfg.easyBonus));
           } else {
-            intervalDays = Math.round(intervalDays * ease * 1.3);
+            intervalDays = Math.round(intervalDays * ease * cfg.easyBonus);
           }
+          intervalDays = Math.min(cfg.maxInterval, Math.max(1, intervalDays));
           reps += 1;
           ease = Math.min(3.0, ease + 0.15);
           nextDueOffsetMs = intervalDays * DAY_MS;
@@ -870,7 +1314,7 @@ function doPost(e) {
 
         const totalDue = state.cards.filter(c => c.due <= now).length;
         document.getElementById('today-due-summary').textContent = `復習待ち ${totalDue} 枚`;
-        const pct = Math.min(100, Math.round(((state.stats.todayReviewed || 0) / DAILY_GOAL) * 100));
+        const pct = Math.min(100, Math.round(((state.stats.todayReviewed || 0) / Math.max(1, getSettings().dailyGoal)) * 100));
         document.getElementById('today-progress-bar').style.width = `${pct}%`;
 
         const container = document.getElementById('deck-list-container');
@@ -922,6 +1366,66 @@ function doPost(e) {
         }).join('');
       }
 
+      function formatDateKey(d) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+
+      function getHeatmapCellClass(count) {
+        if (count <= 0) return 'bg-slate-100 dark:bg-slate-800';
+        if (count <= 5) return 'bg-emerald-200 dark:bg-emerald-900/70';
+        if (count <= 15) return 'bg-emerald-400 dark:bg-emerald-700';
+        if (count <= 30) return 'bg-emerald-500 dark:bg-emerald-500';
+        return 'bg-emerald-700 dark:bg-emerald-400';
+      }
+
+      function renderReviewHeatmap() {
+        const grid = document.getElementById('heatmap-grid');
+        if (!grid) return;
+        const history = (state.stats && state.stats.history) ? state.stats.history : {};
+
+        // Build 26 weeks (182 days) ending on Saturday of current week
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayKey = formatDateKey(today);
+        const daysToSat = 6 - today.getDay();
+        const endDate = new Date(today.getTime() + daysToSat * DAY_MS);
+        const totalWeeks = 26;
+        const startDate = new Date(endDate.getTime() - (totalWeeks * 7 - 1) * DAY_MS);
+
+        let html = '';
+        let sum = 0;
+        let activeDays = 0;
+        let maxCount = 0;
+
+        for (let w = 0; w < totalWeeks; w++) {
+          html += '<div class="grid grid-rows-7 gap-1">';
+          for (let d = 0; d < 7; d++) {
+            const cellDate = new Date(startDate.getTime() + (w * 7 + d) * DAY_MS);
+            const key = formatDateKey(cellDate);
+            const isFuture = cellDate.getTime() > today.getTime();
+            const count = isFuture ? 0 : (Number(history[key]) || 0);
+            if (!isFuture && count > 0) {
+              sum += count;
+              activeDays += 1;
+              if (count > maxCount) maxCount = count;
+            }
+            const colorClass = isFuture ? 'bg-transparent' : getHeatmapCellClass(count);
+            const ringClass = key === todayKey ? 'ring-1 ring-indigo-500 dark:ring-indigo-400' : '';
+            html += `<button type="button" data-date="${key}" data-count="${count}" ${isFuture ? 'disabled' : ''} title="${key}: ${count}枚" class="heatmap-cell w-3 h-3 rounded-sm ${colorClass} ${ringClass} transition-transform hover:scale-125 focus:outline-none"></button>`;
+          }
+          html += '</div>';
+        }
+
+        grid.innerHTML = html;
+        const avg = activeDays > 0 ? Math.round((sum / activeDays) * 10) / 10 : 0;
+        document.getElementById('heatmap-avg').textContent = avg;
+        document.getElementById('heatmap-max').textContent = maxCount;
+
+        // Scroll to the latest week (rightmost)
+        const wrap = document.getElementById('heatmap-scroll-wrap');
+        if (wrap) wrap.scrollLeft = wrap.scrollWidth;
+      }
+
       // Start Study Session
       function startStudy(deckId, practiceAll = false) {
         const now = Date.now();
@@ -944,6 +1448,9 @@ function doPost(e) {
         document.getElementById('study-deck-title').textContent = deckId === 'all' ? '全デッキまとめ学習' : (deckObj ? deckObj.name : '学習中');
         switchView('study');
         renderStudyCard();
+        if (studySession.currentCard && getSettings().autoSpeakFront && studySession.currentCard.front) {
+          speakText(studySession.currentCard.front);
+        }
       }
 
       function renderStudyCard() {
@@ -978,10 +1485,28 @@ function doPost(e) {
         }
 
         document.getElementById('card-deck-label').textContent = deck ? deck.name : '';
-        document.getElementById('card-front-text').textContent = card.front;
+        const frontImgEl = document.getElementById('card-front-img');
+        if (card.frontImg) {
+          frontImgEl.src = card.frontImg;
+          frontImgEl.classList.remove('hidden');
+        } else {
+          frontImgEl.removeAttribute('src');
+          frontImgEl.classList.add('hidden');
+        }
+        const backImgEl = document.getElementById('card-back-img');
+        if (card.backImg) {
+          backImgEl.src = card.backImg;
+          backImgEl.classList.remove('hidden');
+        } else {
+          backImgEl.removeAttribute('src');
+          backImgEl.classList.add('hidden');
+        }
+        document.getElementById('card-front-text').innerHTML = formatCardText(card.front || '');
+        document.getElementById('speak-front-btn').classList.toggle('hidden', !(card.front && stripFormatTags(card.front).trim()));
         document.getElementById('card-front-hint').textContent = studySession.showingAnswer ? '' : 'カードをタップして答えを表示';
-        document.getElementById('card-back-text').textContent = card.back;
-        document.getElementById('card-note-text').textContent = card.note || '';
+        document.getElementById('card-back-text').innerHTML = formatCardText(card.back || '');
+        document.getElementById('speak-back-btn').classList.toggle('hidden', !(card.back && stripFormatTags(card.back).trim()));
+        document.getElementById('card-note-text').innerHTML = formatCardText(card.note || '');
         document.getElementById('card-interval-info').textContent = card.interval > 0 ? `前回間隔: ${card.interval}日` : '初回学習';
 
         document.getElementById('card-answer-divider').classList.toggle('hidden', !studySession.showingAnswer);
@@ -996,10 +1521,30 @@ function doPost(e) {
         }
       }
 
+      function speakText(text) {
+        if (!text || !('speechSynthesis' in window)) return;
+        try {
+          window.speechSynthesis.cancel();
+          if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+          }
+          const cleanText = stripFormatTags(text).trim();
+          if (!cleanText) return;
+          const utter = new SpeechSynthesisUtterance(cleanText);
+          const hasJapanese = /[぀-ヿ一-龯]/.test(text);
+          utter.lang = hasJapanese ? 'ja-JP' : 'en-US';
+          utter.rate = Number(getSettings().speechRate) || 1.0;
+          window.speechSynthesis.speak(utter);
+        } catch (e) {}
+      }
+
       function revealAnswer() {
         if (!studySession.currentCard || studySession.showingAnswer) return;
         studySession.showingAnswer = true;
         renderStudyCard();
+        if (getSettings().autoSpeakBack && studySession.currentCard.back) {
+          speakText(studySession.currentCard.back);
+        }
       }
 
       function submitGrade(grade) {
@@ -1021,6 +1566,10 @@ function doPost(e) {
         }
         state.stats.totalReviews += 1;
         state.stats.todayReviewed += 1;
+        if (!state.stats.history || typeof state.stats.history !== 'object') {
+          state.stats.history = {};
+        }
+        state.stats.history[today] = (state.stats.history[today] || 0) + 1;
         if (grade >= 3) state.stats.correctReviews += 1;
 
         if (state.stats.lastStudyDate !== today) {
@@ -1040,10 +1589,16 @@ function doPost(e) {
           studySession.queue.push(card);
         }
 
+        if ('speechSynthesis' in window) {
+          try { window.speechSynthesis.cancel(); } catch (e) {}
+        }
         studySession.currentCard = studySession.queue[0] || null;
         studySession.showingAnswer = false;
         saveState();
         renderStudyCard();
+        if (studySession.currentCard && getSettings().autoSpeakFront && studySession.currentCard.front) {
+          speakText(studySession.currentCard.front);
+        }
       }
 
       // Render Browse View
@@ -1059,8 +1614,8 @@ function doPost(e) {
           if (filterSelect.value !== 'all' && c.deckId !== filterSelect.value) return false;
           if (!query) return true;
           return (
-            c.front.toLowerCase().includes(query) ||
-            c.back.toLowerCase().includes(query) ||
+            stripFormatTags(c.front).toLowerCase().includes(query) ||
+            stripFormatTags(c.back).toLowerCase().includes(query) ||
             (c.note && c.note.toLowerCase().includes(query))
           );
         });
@@ -1081,9 +1636,10 @@ function doPost(e) {
                 <div class="flex items-center gap-2">
                   <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 truncate max-w-[140px]">${escapeHtml(deck ? deck.name : '不明')}</span>
                   <span class="text-[11px] text-slate-400">${card.interval > 0 ? `間隔: ${card.interval}日` : '新規'}</span>
+                  ${(card.frontImg || card.backImg) ? '<span class="text-[11px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300">📷 写真</span>' : ''}
                 </div>
-                <p class="font-semibold text-sm break-words">${escapeHtml(card.front)}</p>
-                <p class="text-xs text-slate-600 dark:text-slate-400 break-words">${escapeHtml(card.back)}</p>
+                <p class="font-semibold text-sm break-words">${card.front ? formatCardText(card.front) : '（写真のみ）'}</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 break-words">${card.back ? formatCardText(card.back) : '（写真のみ）'}</p>
               </div>
               <div class="flex items-center gap-1 shrink-0">
                 <button type="button" data-action="edit-card" data-id="${card.id}" aria-label="カード編集" class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50">
@@ -1102,8 +1658,25 @@ function doPost(e) {
         }).join('');
       }
 
+      function populateSettingsForm() {
+        const cfg = getSettings();
+        document.getElementById('setting-again-min').value = cfg.againMin;
+        document.getElementById('setting-hard-min').value = cfg.hardMin;
+        document.getElementById('setting-good-1').value = cfg.goodFirstDays;
+        document.getElementById('setting-good-2').value = cfg.goodSecondDays;
+        document.getElementById('setting-easy-1').value = cfg.easyFirstDays;
+        document.getElementById('setting-easy-bonus').value = cfg.easyBonus;
+        document.getElementById('setting-max-interval').value = cfg.maxInterval;
+        document.getElementById('setting-daily-goal').value = cfg.dailyGoal;
+        document.getElementById('setting-auto-speak-front').checked = Boolean(cfg.autoSpeakFront);
+        document.getElementById('setting-auto-speak-back').checked = Boolean(cfg.autoSpeakBack);
+        document.getElementById('setting-speech-rate').value = String(cfg.speechRate || 1);
+      }
+
       // Render Stats View
       function renderStatsView() {
+        renderReviewHeatmap();
+        populateSettingsForm();
         const total = state.cards.length;
         const mature = state.cards.filter(c => c.interval >= 7).length;
         const totalRev = state.stats.totalReviews || 0;
@@ -1185,6 +1758,71 @@ function doPost(e) {
           .replace(/'/g, '&#39;');
       }
 
+      function stripFormatTags(str) {
+        const s = String(str || '').replace(/\[\/?(b|red|blue|green|hl)\]/g, '');
+        const tmp = document.createElement('div');
+        tmp.innerHTML = s;
+        return (tmp.textContent || tmp.innerText || '').trim();
+      }
+
+      function sanitizeRichHtml(html) {
+        const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
+        const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'DIV', 'P', 'SPAN', 'FONT', 'MARK']);
+        function cleanNode(node) {
+          if (node.nodeType === Node.TEXT_NODE) {
+            return document.createTextNode(node.textContent);
+          }
+          if (node.nodeType !== Node.ELEMENT_NODE) {
+            return document.createTextNode('');
+          }
+          const tag = node.tagName.toUpperCase();
+          if (!allowedTags.has(tag)) {
+            const frag = document.createDocumentFragment();
+            node.childNodes.forEach(c => frag.appendChild(cleanNode(c)));
+            return frag;
+          }
+          const el = document.createElement(tag === 'FONT' ? 'SPAN' : tag);
+          if (tag === 'FONT' && node.getAttribute('color')) {
+            el.style.color = node.getAttribute('color');
+          }
+          if (node.style) {
+            if (node.style.color) el.style.color = node.style.color;
+            if (node.style.backgroundColor) el.style.backgroundColor = node.style.backgroundColor;
+            if (node.style.fontWeight) el.style.fontWeight = node.style.fontWeight;
+          }
+          if (node.className && typeof node.className === 'string') {
+            el.className = node.className;
+          }
+          node.childNodes.forEach(c => el.appendChild(cleanNode(c)));
+          return el;
+        }
+        const container = document.createElement('div');
+        doc.body.childNodes.forEach(c => container.appendChild(cleanNode(c)));
+        return container.innerHTML;
+      }
+
+      function formatCardText(str) {
+        let s = String(str || '');
+        if (!s) return '';
+        // If plain text or legacy bracket tags without HTML tags
+        if (!/<[a-z][\s\S]*>/i.test(s)) {
+          s = escapeHtml(s).replace(/\n/g, '<br>');
+          s = s.replace(/\[b\]([\s\S]*?)\[\/b\]/g, '<strong class="font-bold">$1</strong>');
+          s = s.replace(/\[red\]([\s\S]*?)\[\/red\]/g, '<span class="text-rose-600 dark:text-rose-400 font-semibold">$1</span>');
+          s = s.replace(/\[blue\]([\s\S]*?)\[\/blue\]/g, '<span class="text-sky-600 dark:text-sky-400 font-semibold">$1</span>');
+          s = s.replace(/\[green\]([\s\S]*?)\[\/green\]/g, '<span class="text-emerald-600 dark:text-emerald-400 font-semibold">$1</span>');
+          s = s.replace(/\[hl\]([\s\S]*?)\[\/hl\]/g, '<mark class="bg-amber-200/80 dark:bg-amber-500/30 text-inherit px-1 rounded">$1</mark>');
+          return s;
+        }
+        return sanitizeRichHtml(s);
+      }
+
+      function getEditorHtml(el) {
+        const plain = (el.textContent || '').trim();
+        if (!plain) return '';
+        return sanitizeRichHtml(el.innerHTML);
+      }
+
       // Event Listeners
       document.getElementById('theme-toggle-btn').addEventListener('click', () => {
         state.theme = state.theme === 'dark' ? 'light' : 'dark';
@@ -1208,11 +1846,26 @@ function doPost(e) {
 
       // Quick study all
       document.getElementById('quick-study-btn').addEventListener('click', () => startStudy('all', false));
-      document.getElementById('study-back-btn').addEventListener('click', () => switchView('decks'));
+      document.getElementById('study-back-btn').addEventListener('click', () => {
+        if ('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+        switchView('decks');
+      });
       document.getElementById('study-done-home-btn').addEventListener('click', () => switchView('decks'));
       document.getElementById('study-practice-all-btn').addEventListener('click', () => startStudy(studySession.deckId, true));
 
-      // Flashcard interactions
+      // Flashcard interactions & speech buttons
+      document.getElementById('speak-front-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (studySession.currentCard && studySession.currentCard.front) {
+          speakText(studySession.currentCard.front);
+        }
+      });
+      document.getElementById('speak-back-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (studySession.currentCard && studySession.currentCard.back) {
+          speakText(studySession.currentCard.back);
+        }
+      });
       document.getElementById('flashcard-box').addEventListener('click', revealAnswer);
       document.getElementById('show-answer-btn').addEventListener('click', revealAnswer);
       document.querySelectorAll('.rating-btn').forEach(btn => {
@@ -1263,6 +1916,13 @@ function doPost(e) {
         renderDecksView();
       });
 
+      // Heatmap cell tap/hover info
+      document.getElementById('heatmap-grid').addEventListener('click', (e) => {
+        const cell = e.target.closest('.heatmap-cell');
+        if (!cell || cell.disabled) return;
+        document.getElementById('heatmap-selected-info').textContent = `${cell.dataset.date}：${cell.dataset.count}枚復習`;
+      });
+
       // Deck list delegation
       document.getElementById('deck-list-container').addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-action]');
@@ -1292,6 +1952,139 @@ function doPost(e) {
         }
       });
 
+      // Rich text WYSIWYG formatting buttons (keeps selection on mobile/desktop)
+      document.getElementById('card-modal').addEventListener('mousedown', (e) => {
+        if (e.target.closest('.fmt-btn')) e.preventDefault();
+      });
+      document.getElementById('card-modal').addEventListener('click', (e) => {
+        const btn = e.target.closest('.fmt-btn');
+        if (!btn) return;
+        const wrap = btn.closest('[data-fmt-target]');
+        if (!wrap) return;
+        const editor = document.getElementById(wrap.dataset.fmtTarget);
+        if (!editor) return;
+        editor.focus();
+        const fmt = btn.dataset.fmt;
+        try {
+          if (fmt === 'b') {
+            document.execCommand('bold', false, null);
+          } else if (fmt === 'red') {
+            document.execCommand('foreColor', false, '#e11d48');
+          } else if (fmt === 'blue') {
+            document.execCommand('foreColor', false, '#0284c7');
+          } else if (fmt === 'green') {
+            document.execCommand('foreColor', false, '#059669');
+          } else if (fmt === 'hl') {
+            document.execCommand('hiliteColor', false, '#fef08a');
+          } else if (fmt === 'clear') {
+            document.execCommand('removeFormat', false, null);
+          }
+        } catch (err) {}
+      });
+
+      // Image compression helper (max 600px, JPEG 0.72 for compact local & cloud sync)
+      let modalFrontImg = '';
+      let modalBackImg = '';
+
+      function setModalImagePreview(side, dataUrl) {
+        if (side === 'front') modalFrontImg = dataUrl || '';
+        else modalBackImg = dataUrl || '';
+        const imgEl = document.getElementById(`card-form-${side}-img-preview`);
+        const clearBtn = document.getElementById(`card-form-${side}-img-clear`);
+        if (dataUrl) {
+          imgEl.src = dataUrl;
+          imgEl.classList.remove('hidden');
+          clearBtn.classList.remove('hidden');
+        } else {
+          imgEl.removeAttribute('src');
+          imgEl.classList.add('hidden');
+          clearBtn.classList.add('hidden');
+        }
+      }
+
+      function compressImageFile(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => {
+              const maxDim = 600;
+              let w = img.width;
+              let h = img.height;
+              if (w > maxDim || h > maxDim) {
+                if (w >= h) {
+                  h = Math.round((h * maxDim) / w);
+                  w = maxDim;
+                } else {
+                  w = Math.round((w * maxDim) / h);
+                  h = maxDim;
+                }
+              }
+              const canvas = document.createElement('canvas');
+              canvas.width = w;
+              canvas.height = h;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, w, h);
+              resolve(canvas.toDataURL('image/jpeg', 0.72));
+            };
+            img.onerror = reject;
+            img.src = reader.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      ['front', 'back'].forEach(side => {
+        document.getElementById(`card-form-${side}-img-input`).addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          try {
+            const compressed = await compressImageFile(file);
+            setModalImagePreview(side, compressed);
+          } catch (err) {
+            showToast('画像の読み込みに失敗しました');
+          }
+          e.target.value = '';
+        });
+        document.getElementById(`card-form-${side}-img-clear`).addEventListener('click', () => {
+          setModalImagePreview(side, '');
+        });
+
+        // Support pasting images directly from clipboard (iPad / iPhone / PC)
+        document.getElementById(`card-form-${side}`).addEventListener('paste', async (e) => {
+          const cb = e.clipboardData;
+          if (!cb) return;
+          let imageFile = null;
+          if (cb.items) {
+            for (let i = 0; i < cb.items.length; i++) {
+              if (cb.items[i].type && cb.items[i].type.startsWith('image/')) {
+                imageFile = cb.items[i].getAsFile();
+                break;
+              }
+            }
+          }
+          if (!imageFile && cb.files && cb.files.length > 0) {
+            for (let i = 0; i < cb.files.length; i++) {
+              if (cb.files[i].type && cb.files[i].type.startsWith('image/')) {
+                imageFile = cb.files[i];
+                break;
+              }
+            }
+          }
+          if (imageFile) {
+            e.preventDefault();
+            try {
+              const compressed = await compressImageFile(imageFile);
+              setModalImagePreview(side, compressed);
+              showToast('クリップボードの画像を添付しました');
+            } catch (err) {
+              showToast('画像の貼り付けに失敗しました');
+            }
+          }
+        });
+      });
+
       // Card add/edit modal
       document.getElementById('open-add-card-btn').addEventListener('click', () => {
         if (state.decks.length === 0) {
@@ -1301,9 +2094,11 @@ function doPost(e) {
         document.getElementById('card-modal-title').textContent = 'カードを追加';
         document.getElementById('card-form-id').value = '';
         populateDeckSelect('card-form-deck', document.getElementById('browse-deck-filter').value);
-        document.getElementById('card-form-front').value = '';
-        document.getElementById('card-form-back').value = '';
+        document.getElementById('card-form-front').innerHTML = '';
+        document.getElementById('card-form-back').innerHTML = '';
         document.getElementById('card-form-note').value = '';
+        setModalImagePreview('front', '');
+        setModalImagePreview('back', '');
         document.getElementById('card-modal').classList.remove('hidden');
       });
 
@@ -1311,10 +2106,13 @@ function doPost(e) {
         e.preventDefault();
         const id = document.getElementById('card-form-id').value;
         const deckId = document.getElementById('card-form-deck').value;
-        const front = document.getElementById('card-form-front').value.trim();
-        const back = document.getElementById('card-form-back').value.trim();
+        const front = getEditorHtml(document.getElementById('card-form-front'));
+        const back = getEditorHtml(document.getElementById('card-form-back'));
         const note = document.getElementById('card-form-note').value.trim();
-        if (!deckId || !front || !back) return;
+        if (!deckId || (!front && !modalFrontImg) || (!back && !modalBackImg)) {
+          showToast('表面と裏面にそれぞれテキストまたは写真を入力してください');
+          return;
+        }
 
         if (id) {
           const card = state.cards.find(c => c.id === id);
@@ -1323,6 +2121,8 @@ function doPost(e) {
             card.front = front;
             card.back = back;
             card.note = note;
+            card.frontImg = modalFrontImg;
+            card.backImg = modalBackImg;
           }
           showToast('カードを更新しました');
         } else {
@@ -1332,6 +2132,8 @@ function doPost(e) {
             front,
             back,
             note,
+            frontImg: modalFrontImg,
+            backImg: modalBackImg,
             reps: 0,
             interval: 0,
             ease: 2.5,
@@ -1360,9 +2162,11 @@ function doPost(e) {
           document.getElementById('card-modal-title').textContent = 'カードを編集';
           document.getElementById('card-form-id').value = card.id;
           populateDeckSelect('card-form-deck', card.deckId);
-          document.getElementById('card-form-front').value = card.front;
-          document.getElementById('card-form-back').value = card.back;
+          document.getElementById('card-form-front').innerHTML = formatCardText(card.front || '');
+          document.getElementById('card-form-back').innerHTML = formatCardText(card.back || '');
           document.getElementById('card-form-note').value = card.note || '';
+          setModalImagePreview('front', card.frontImg || '');
+          setModalImagePreview('back', card.backImg || '');
           document.getElementById('card-modal').classList.remove('hidden');
         } else if (action === 'delete-card') {
           openConfirm('このカードを削除しますか？', () => {
@@ -1491,6 +2295,33 @@ function doPost(e) {
         showToast('クラウド同期を解除しました');
       });
 
+      // Study & Interval Settings Listeners
+      document.getElementById('settings-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        state.settings = {
+          againMin: Math.max(1, Number(document.getElementById('setting-again-min').value) || 1),
+          hardMin: Math.max(1, Number(document.getElementById('setting-hard-min').value) || 10),
+          goodFirstDays: Math.max(1, Number(document.getElementById('setting-good-1').value) || 1),
+          goodSecondDays: Math.max(1, Number(document.getElementById('setting-good-2').value) || 6),
+          easyFirstDays: Math.max(1, Number(document.getElementById('setting-easy-1').value) || 4),
+          easyBonus: Math.max(1.0, Number(document.getElementById('setting-easy-bonus').value) || 1.3),
+          maxInterval: Math.max(7, Number(document.getElementById('setting-max-interval').value) || 365),
+          dailyGoal: Math.max(1, Number(document.getElementById('setting-daily-goal').value) || 20),
+          autoSpeakFront: document.getElementById('setting-auto-speak-front').checked,
+          autoSpeakBack: document.getElementById('setting-auto-speak-back').checked,
+          speechRate: Number(document.getElementById('setting-speech-rate').value) || 1.0
+        };
+        saveState();
+        showToast('復習間隔・学習設定を保存しました');
+      });
+
+      document.getElementById('reset-settings-btn').addEventListener('click', () => {
+        state.settings = Object.assign({}, DEFAULT_SETTINGS);
+        populateSettingsForm();
+        saveState();
+        showToast('初期設定に戻しました');
+      });
+
       // Passcode Lock Listeners
       document.getElementById('save-passcode-btn').addEventListener('click', () => {
         const code = document.getElementById('passcode-set-input').value.trim();
@@ -1558,5 +2389,5 @@ function doPost(e) {
       }
     })();
   </script>
-</body>
-</html>
+
+</body></html>
