@@ -131,7 +131,7 @@
   <main class="flex-1 max-w-4xl w-full mx-auto px-4 pt-4 pb-28">
 
     <!-- VIEW 1: DECKS -->
-    <section id="view-decks" class="space-y-4 hidden">
+    <section id="view-decks" class="space-y-4">
       <!-- Daily Summary Card -->
       <div class="bg-gradient-to-br from-indigo-600 to-violet-600 rounded-2xl p-4 sm:p-5 text-white shadow-md">
         <div class="flex items-center justify-between gap-3">
@@ -327,7 +327,7 @@
     </section>
 
     <!-- VIEW 3: BROWSE / MANAGE CARDS -->
-    <section id="view-browse" class="space-y-4">
+    <section id="view-browse" class="hidden space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <h2 class="text-lg font-bold">カード管理</h2>
         <button id="open-add-card-btn" type="button" class="tap-scale inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm">
@@ -811,6 +811,12 @@ function doPost(e) {
           <input id="deck-form-name" type="text" required="" placeholder="例: TOEIC 重要単語" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div>
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">親デッキ（任意・階層化する場合）</label>
+          <select id="deck-form-parent" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="">なし（トップレベル）</option>
+          </select>
+        </div>
+        <div>
           <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">説明（任意）</label>
           <input id="deck-form-desc" type="text" placeholder="例: 通勤中に覚えるフレーズ集" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
@@ -823,7 +829,7 @@ function doPost(e) {
   </div>
 
   <!-- MODAL: Add/Edit Card -->
-  <div id="card-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="card-modal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 space-y-4 shadow-xl">
       <div class="flex items-center justify-between">
         <h3 id="card-modal-title" class="text-base font-bold">カードを編集</h3>
@@ -1327,11 +1333,62 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
           return;
         }
 
-        container.innerHTML = state.decks.map(deck => {
-          const deckCards = state.cards.filter(c => c.deckId === deck.id);
+        const deckIdsSet = new Set(state.decks.map(d => d.id));
+        const topDecks = state.decks.filter(d => !d.parentId || !deckIdsSet.has(d.parentId));
+
+        function renderChildRows(parentId, depth) {
+          const children = state.decks.filter(d => d.parentId === parentId);
+          if (children.length === 0) return '';
+          return children.map(child => {
+            const subIds = new Set(getSubtreeDeckIds(child.id));
+            const subCards = state.cards.filter(c => subIds.has(c.deckId));
+            const sNew = subCards.filter(c => c.state === 'new' && c.due <= now).length;
+            const sDue = subCards.filter(c => c.state !== 'new' && c.due <= now).length;
+            const indentPx = Math.min(depth, 3) * 12;
+            return `
+              <div style="margin-left: ${indentPx}px" class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-slate-400 text-xs">└</span>
+                    <h5 class="font-semibold text-sm truncate">${escapeHtml(child.name)}</h5>
+                  </div>
+                  <div class="flex items-center gap-2 mt-1 pl-4 text-[11px]">
+                    <span class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-semibold">新規 ${sNew}</span>
+                    <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 font-semibold">復習 ${sDue}</span>
+                    <span class="text-slate-400">全 ${subCards.length}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button type="button" data-action="study-deck" data-id="${child.id}" class="tap-scale px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 dark:text-indigo-300 text-xs font-semibold">
+                    学習
+                  </button>
+                  <button type="button" data-action="add-subdeck" data-id="${child.id}" title="この中にサブデッキを追加" aria-label="サブデッキ追加" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-xs font-bold">
+                    ＋
+                  </button>
+                  <button type="button" data-action="edit-deck" data-id="${child.id}" aria-label="デッキ編集" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button type="button" data-action="delete-deck" data-id="${child.id}" aria-label="デッキ削除" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              ${renderChildRows(child.id, depth + 1)}
+            `;
+          }).join('');
+        }
+
+        container.innerHTML = topDecks.map(deck => {
+          const allIds = new Set(getSubtreeDeckIds(deck.id));
+          const deckCards = state.cards.filter(c => allIds.has(c.deckId));
           const newCount = deckCards.filter(c => c.state === 'new' && c.due <= now).length;
           const dueCount = deckCards.filter(c => c.state !== 'new' && c.due <= now).length;
           const totalCount = deckCards.length;
+          const subHtml = renderChildRows(deck.id, 0);
 
           return `
             <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 transition-colors">
@@ -1345,9 +1402,12 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
                     <span class="text-slate-400">全 ${totalCount} 枚</span>
                   </div>
                 </div>
-                <div class="flex items-center gap-1.5 shrink-0">
+                <div class="flex items-center gap-1 shrink-0">
                   <button type="button" data-action="study-deck" data-id="${deck.id}" class="tap-scale px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm">
                     学習
+                  </button>
+                  <button type="button" data-action="add-subdeck" data-id="${deck.id}" title="この中にサブデッキを追加" aria-label="サブデッキ追加" class="p-2 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-sm font-bold">
+                    ＋
                   </button>
                   <button type="button" data-action="edit-deck" data-id="${deck.id}" aria-label="デッキ編集" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1361,6 +1421,7 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
                   </button>
                 </div>
               </div>
+              ${subHtml}
             </div>
           `;
         }).join('');
@@ -1426,10 +1487,56 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
         if (wrap) wrap.scrollLeft = wrap.scrollWidth;
       }
 
+      // Deck hierarchy helpers
+      function getSubtreeDeckIds(rootId) {
+        const result = [];
+        const visited = new Set();
+        function walk(id) {
+          if (visited.has(id)) return;
+          visited.add(id);
+          result.push(id);
+          state.decks.filter(d => d.parentId === id).forEach(c => walk(c.id));
+        }
+        walk(rootId);
+        return result;
+      }
+
+      function getDeckDisplayName(deckId) {
+        const parts = [];
+        const visited = new Set();
+        let cur = state.decks.find(d => d.id === deckId);
+        while (cur && !visited.has(cur.id)) {
+          visited.add(cur.id);
+          parts.unshift(cur.name);
+          cur = cur.parentId ? state.decks.find(d => d.id === cur.parentId) : null;
+        }
+        return parts.join(' ＞ ') || '不明';
+      }
+
+      function getOrderedDecks() {
+        const ordered = [];
+        const deckIdsSet = new Set(state.decks.map(d => d.id));
+        const visited = new Set();
+        function walk(d, depth) {
+          if (visited.has(d.id)) return;
+          visited.add(d.id);
+          ordered.push({ deck: d, depth });
+          state.decks.filter(c => c.parentId === d.id).forEach(c => walk(c, depth + 1));
+        }
+        state.decks.filter(d => !d.parentId || !deckIdsSet.has(d.parentId)).forEach(d => walk(d, 0));
+        return ordered;
+      }
+
       // Start Study Session
       function startStudy(deckId, practiceAll = false) {
         const now = Date.now();
-        let pool = deckId === 'all' ? [...state.cards] : state.cards.filter(c => c.deckId === deckId);
+        let pool;
+        if (deckId === 'all') {
+          pool = [...state.cards];
+        } else {
+          const targetIds = new Set(getSubtreeDeckIds(deckId));
+          pool = state.cards.filter(c => targetIds.has(c.deckId));
+        }
         if (!practiceAll) {
           pool = pool.filter(c => c.due <= now);
         }
@@ -1444,8 +1551,7 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
           showingAnswer: false
         };
 
-        const deckObj = state.decks.find(d => d.id === deckId);
-        document.getElementById('study-deck-title').textContent = deckId === 'all' ? '全デッキまとめ学習' : (deckObj ? deckObj.name : '学習中');
+        document.getElementById('study-deck-title').textContent = deckId === 'all' ? '全デッキまとめ学習' : getDeckDisplayName(deckId);
         switchView('study');
         renderStudyCard();
         if (studySession.currentCard && getSettings().autoSpeakFront && studySession.currentCard.front) {
@@ -1606,12 +1712,15 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
         const filterSelect = document.getElementById('browse-deck-filter');
         const currentFilter = filterSelect.value || 'all';
         filterSelect.innerHTML = `<option value="all">すべてのデッキ</option>` +
-          state.decks.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('');
+          getOrderedDecks().map(({ deck: d }) => `<option value="${d.id}">${escapeHtml(getDeckDisplayName(d.id))}</option>`).join('');
         filterSelect.value = state.decks.some(d => d.id === currentFilter) ? currentFilter : 'all';
 
         const query = (document.getElementById('browse-search-input').value || '').trim().toLowerCase();
         const filtered = state.cards.filter(c => {
-          if (filterSelect.value !== 'all' && c.deckId !== filterSelect.value) return false;
+          if (filterSelect.value !== 'all') {
+            const allowedIds = new Set(getSubtreeDeckIds(filterSelect.value));
+            if (!allowedIds.has(c.deckId)) return false;
+          }
           if (!query) return true;
           return (
             stripFormatTags(c.front).toLowerCase().includes(query) ||
@@ -1737,10 +1846,23 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
 
       function populateDeckSelect(selectId, selectedId) {
         const sel = document.getElementById(selectId);
-        sel.innerHTML = state.decks.map(d => `<option value="${d.id}">${escapeHtml(d.name)}</option>`).join('');
+        sel.innerHTML = getOrderedDecks().map(({ deck: d }) => `<option value="${d.id}">${escapeHtml(getDeckDisplayName(d.id))}</option>`).join('');
         if (selectedId && state.decks.some(d => d.id === selectedId)) {
           sel.value = selectedId;
         }
+      }
+
+      function populateParentDeckSelect(excludeDeckId, selectedParentId) {
+        const sel = document.getElementById('deck-form-parent');
+        const excluded = excludeDeckId ? new Set(getSubtreeDeckIds(excludeDeckId)) : new Set();
+        const options = ['<option value="">なし（トップレベル）</option>'];
+        getOrderedDecks().forEach(({ deck: d }) => {
+          if (!excluded.has(d.id)) {
+            options.push(`<option value="${d.id}">${escapeHtml(getDeckDisplayName(d.id))}</option>`);
+          }
+        });
+        sel.innerHTML = options.join('');
+        sel.value = (selectedParentId && !excluded.has(selectedParentId)) ? selectedParentId : '';
       }
 
       function openConfirm(message, onConfirm) {
@@ -1848,7 +1970,8 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
       document.getElementById('quick-study-btn').addEventListener('click', () => startStudy('all', false));
       document.getElementById('study-back-btn').addEventListener('click', () => {
         if ('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
-        switchView('decks');
+        closeAllModals();
+      switchView('decks');
       });
       document.getElementById('study-done-home-btn').addEventListener('click', () => switchView('decks'));
       document.getElementById('study-practice-all-btn').addEventListener('click', () => startStudy(studySession.deckId, true));
@@ -1890,6 +2013,7 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
         document.getElementById('deck-form-id').value = '';
         document.getElementById('deck-form-name').value = '';
         document.getElementById('deck-form-desc').value = '';
+        populateParentDeckSelect('', '');
         document.getElementById('deck-modal').classList.remove('hidden');
       });
 
@@ -1898,6 +2022,7 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
         const id = document.getElementById('deck-form-id').value;
         const name = document.getElementById('deck-form-name').value.trim();
         const desc = document.getElementById('deck-form-desc').value.trim();
+        const parentId = document.getElementById('deck-form-parent').value || '';
         if (!name) return;
 
         if (id) {
@@ -1905,10 +2030,13 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
           if (deck) {
             deck.name = name;
             deck.desc = desc;
+            deck.parentId = parentId || undefined;
           }
           showToast('デッキを更新しました');
         } else {
-          state.decks.push({ id: 'deck_' + Date.now(), name, desc });
+          const newDeck = { id: 'deck_' + Date.now(), name, desc };
+          if (parentId) newDeck.parentId = parentId;
+          state.decks.push(newDeck);
           showToast('新しいデッキを作成しました');
         }
         saveState();
@@ -1931,6 +2059,13 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
         const id = btn.dataset.id;
         if (action === 'study-deck') {
           startStudy(id, false);
+        } else if (action === 'add-subdeck') {
+          document.getElementById('deck-modal-title').textContent = 'サブデッキを作成';
+          document.getElementById('deck-form-id').value = '';
+          document.getElementById('deck-form-name').value = '';
+          document.getElementById('deck-form-desc').value = '';
+          populateParentDeckSelect('', id);
+          document.getElementById('deck-modal').classList.remove('hidden');
         } else if (action === 'edit-deck') {
           const deck = state.decks.find(d => d.id === id);
           if (!deck) return;
@@ -1938,13 +2073,16 @@ resilient,回復力のある" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50
           document.getElementById('deck-form-id').value = deck.id;
           document.getElementById('deck-form-name').value = deck.name;
           document.getElementById('deck-form-desc').value = deck.desc || '';
+          populateParentDeckSelect(deck.id, deck.parentId || '');
           document.getElementById('deck-modal').classList.remove('hidden');
         } else if (action === 'delete-deck') {
           const deck = state.decks.find(d => d.id === id);
           if (!deck) return;
-          openConfirm(`「${deck.name}」と中のカードをすべて削除しますか？`, () => {
-            state.decks = state.decks.filter(d => d.id !== id);
-            state.cards = state.cards.filter(c => c.deckId !== id);
+          const delIds = new Set(getSubtreeDeckIds(id));
+          const hasSub = delIds.size > 1;
+          openConfirm(`「${deck.name}」${hasSub ? '（サブデッキを含む）' : ''}と中のカードをすべて削除しますか？`, () => {
+            state.decks = state.decks.filter(d => !delIds.has(d.id));
+            state.cards = state.cards.filter(c => !delIds.has(c.deckId));
             saveState();
             renderDecksView();
             showToast('デッキを削除しました');
